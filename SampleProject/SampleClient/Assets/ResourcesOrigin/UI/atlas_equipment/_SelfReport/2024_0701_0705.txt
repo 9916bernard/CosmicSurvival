@@ -1,0 +1,110 @@
+7.01
+start button은 main_base에 넣어서 SceneManager에서 관리 성공
+이제 Battleui를 area 안으로 넣어야하는데
+1. area_base, area_popup 이름에 맞게 popup들 따로, base 따로 넣어야할지 - 이 경우엔 지금 main_base_ui의 클릭해서 나오는 pop_up ui 들도 이쪽으로 넣어야하는지
+2. 따로 만든다면 아까 했던것처럼 아예 area들 밖에 하나를 만들고, Scene manager 에서 player controller에서 받아오던 애들 metal, exp 넣어주기
+3. 
+
+
+
+내일 할것: UI 에 text 들 넣어주고 inspecter 에서, 날라오는거 해보고, 코드 복습 
+
+
+
+
+7.2
+battleMnager로 playercontroller에 있는거 거의 다 옮김.
+popup들 전부 다 prefab으로 만들어서 popup하게 만듦. 근데 그 이름 부분에서 계속 null뜸.
+
+이제 업글을 해볼건데
+1. bullet spawner를 제외한 스포너와 weapons setactive false 상태로 시작.
+2. 보유중인 무기 < 5 면 보유중인 무기 + 미보유 무기 랜덤으로 표시
+3. 5 레벨 단위로 정해진 업그레이드, 나머지는 데미지 업그레이드
+4. 20(max) 레벨이 되면 정해진 수치로 변경 이왕이면 sprite도 변경
+
+기존 upgrade 에다가 Table에서 있는만큼 루프로 받아와서 assignrandom 해서 하면 될듯 
+근데 보유중 list 만들어서 그게 5개 넘으면 있는것중에서만 assignrandom
+이동속도, 
+20 레벨 스텟 다 쓰기. 
+
+CanvasGorup - 이 밑에 애들까지 다 alpha 맥일때 사용
+start, awake, ondestroy 사용은 줄이는게 좋음 
+
+DoTween oncomplete에 script 해놓으면 애니가 끝나고 나서 script가 적용됨. => upgrade 같은 경우 날아오는동안 적용되면 안되는 그런 케이스
+
+Refresh(framework 일부) 원레는 Action-onfundchange를 쓰는데 이걸 쓰면 지금 떠있는 popup같은걸 다 추적해서 바꾸는데 error 가 많이 발생함.
+그래서 framework에서 fund, account 같은 type을 만들어서 바뀔때 이거이거 바뀐다고 전달하면 그것들만 refresh 한다.
+
+Battleupgrade.close => UIBASE closeStart => OnCLoseStart => 
+protected virtual void OnCloseStart()
+{
+    for (int i = 0; i < _TweenList.Count; i++)
+    {
+        _TweenList[i].DOPlayBackwards();
+    }
+}
+
+왜 안되지
+
+DoTween 설정이 이상한듯--- movable
+
+
+7.3
+업그레이드 이제 버튼에 넣을려고 테이블 정리하고 있는데 일단 Upgrade struct에는 레벨별로 업그레이드 되어서 올라가는 수치를 적고(로비에서 업글한 수치가 더해져야해서)
+
+TABLE 에서 Struct 받아오기. =
+
+
+ID 가 있으니까 그걸로 찾고 STAT 이랑 UPGRADE 로만 나눠서 예외 있으면 처리하면 될듯
+
+TABLE Find하는건 효율이 안좋으니 한번 했으면 변수에 저장해놓고 쓰기
+
+
+내가 생각했던건 upgrade 할때 그 script에서 모든 무기에 접근해야하면 비효율적이니까 BattleManager에서 모든 무기에 스텟을 뿌려주는 형식으로 만들고 upgrade에서는 Battle Manager만 받아서 업그레이드 진행.
+
+무기: not active 였다가 init 에 active 랑 읽어오기 넣어놓고 upgrade에서 battlemanager 에 있는 해당 무기 init 하는 function 부르기?
+근데 prefab ui에다가 battlemanager 연결 어케하지
+
+UI base에다가 init 추가해서 battlemananger 받음 
+
+Resources 관리하는 코드에 enum 있고 Tuple 을 써서 형식 만들어놓음.
+
+7.4
+1.왜 처음에 isslashswordfirstactive를 true로 했는데 false 로 들어오지???
+내일 와서 PlayerController 마저 점검해보기.
+- 일단 init 에다가 set state 넣었음. public 으로 있는 애들은 Inpecter을 먼저 따르는듯
+
+
+2.prefab을 초기화 했을때 폴더 위치?
+
+3.parent = GameObject.Find("BattleField/FieldRoot/Weapons");
+_Laser.transform.SetParent(parent.transform, false);
+널뜸
+
+4.unit 등등 prefab으로 만들었는데
+unit_char의 위치가 좀 이상함. 30 이 원레 위치
+
+5.Table 마저 채우기, 체력바 고치기
+
+6.collide shield 뭔가 데미지 주는 기준이 애매함.
+
+weapons prefab으로 바꾸고 쓸때 Init 하는걸로 바꿈 OnStart 다 뺌.
+Main unit도 prefab으로 바꿈.
+모든 무기 스텟과 새 무기 initialize playerController에서 관리함.
+이제 playercontroller에 있는 Stat 바꾼 다음에 해당 무기 Update(); 호출하면 적용됨. 
+
+
+7.5
+업그레이드 완성함. 테이블 완성함. 업그레이드, 최종 업그레이드 등 적용 됨.
+소리 추가, 업그레이드 애니메이션 추가.
+
+투두: 
+0. HP 바 고치기
+1. 레벨업시 살짝 밀어내기
+2. 업그레이드 다 되서 없으면 골드나 hp 되게 오류 안나게 
+3. player, weapon 같은거 만들어져야하는 위치의 class (field) 에다가 요청해서 만들어지게 하기
+4. Weapon class 를 만들어서 LaserCannon:Weapon 461 했던것처럼 중복되는 properties 들은 공유하게.
+5. Ui_battle_upgrade에서 업그레이드 가능한것 determine하지말고 playerController에서 해서 전달.
+6. Gameover ui 지금 Battle upgrade에서 복사했는데 그거 고치기. 
+7. 소리 추가.
+rotation speed랑 projectile num 추가 로켓 유도 검사.

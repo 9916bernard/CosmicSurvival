@@ -1,0 +1,58 @@
+{
+  "1001": {
+    "EnemyID": 1001,
+    "Name": 1001,
+    "Info": "Scout",
+    "Grade": "NORMAL",
+    "Health": 2,
+    "Speed": 1,
+    "UpgradeInterval": 30,
+    "UpgradeHealth": 2,
+    "UpgradeSpeed": 0.00499999989,
+    "SpawnTime": 0,
+    "SpawnChance": 9,
+    "SpawnInterval": 0
+  },
+  "1002": {
+    "EnemyID": 1002,
+    "Name": 1002,
+    "Info": "Charge",
+    "Grade": "NORMAL",
+    "Health": 2,
+    "Speed": 2,
+    "UpgradeInterval": 30,
+    "UpgradeHealth": 1,
+    "UpgradeSpeed": 0.00999999978,
+    "SpawnTime": 30,
+    "SpawnChance": 2,
+    "SpawnInterval": 0
+  },
+  "1003": {
+    "EnemyID": 1003,
+    "Name": 1003,
+    "Info": "Tank",
+    "Grade": "NORMAL",
+    "Health": 25,
+    "Speed": 0.5,
+    "UpgradeInterval": 30,
+    "UpgradeHealth": 10,
+    "UpgradeSpeed": 0.00499999989,
+    "SpawnTime": 150,
+    "SpawnChance": 1,
+    "SpawnInterval": 0
+  },
+  "3001": {
+    "EnemyID": 3001,
+    "Name": 3001,
+    "Info": "ChargeBoss",
+    "Grade": "BOSS",
+    "Health": 100,
+    "Speed": 1,
+    "UpgradeInterval": 60,
+    "UpgradeHealth": 100,
+    "UpgradeSpeed": 0.00999999978,
+    "SpawnTime": 0,
+    "SpawnChance": 0,
+    "SpawnInterval": 120
+  }
+}

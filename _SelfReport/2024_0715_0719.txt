@@ -1,0 +1,105 @@
+C:\Users\naddic\AppData\Local\Temp\Naddic\SampleGame
+userdata location
+
+7.15
+레이저 널뜸 Ok
+rocket 고쳐야함 Ok 
+무기 꽉차면 아예 안나옴. Ok
+데미지 애니 변경 Ok
+터렛 기능 꺼둠. Ok
+업글 안됨 Ok
+레벨 달아주기 OK
+드론들 스프라이트 바꾸기 Ok
+레이저 포탑 달기 Ok
+보스 만들기 Ok
+
+7.16
+보스도 풀로 만들기. Ok
+스포너들 무기로 바꿔주기 Ok
+터렛들 게임 종료 Ok
+gold 저장해보기 OK
+Astroid class 만들기 Ok
+enemyboss push 안됨 pool을 따로 만들고 따로 없애기. Ok
+골드, 이름 인터페이스 없어지는거에 같이 넣기 Ok
+
+7.17
+재시작하면 플레이어 고장나는듯?? collider 랑 부스터같은거 OK
+Invincible 스킬로 발동 안됨. OK
+광물 풀 추가 ok
+광물 랜덤 생성 추가 ok
+광물 fund에 저장 추가 ok
+부스터 게이지 만들기 ok
+기지 메탈 ui 고치기 ok
+
+7.18
+아웃게임 UI 만들기 
+- 다른 페이지로 넘어갔을때 다른 Inindex assign 겹치는 숫자는? 0은? 이렇게 하는게 맞나?
+
+EnemyUnit
+	: Factory > switch
+	EnemyUnitBoss
+		Factory > switch
+	EnemyUnitSpecial
+EnemyUnitFactory
+	: Factory > switch
+	
+	
+switch (effectType)
+{
+	case PLAYER_ATK_UP:
+		_player.atk += 10;
+}
+
+
+카오스 온라인
+code : 프로그래머
+script : 기획자 : 관리 
+	lua 스크립트
+
+
+업그레이드 테이블
+fund
+
+5001
+
+
+enum을 짜서 rule을 만들고, table에서 받아서 사용가능하게 만들고(dictionary 형태로) 숫자랑 무관하게 Dic[ETB_~] 해서 코드 안에서 사용 => 관리가 용이해진다. 
+var spdupgrade = USER.upgrade.GetUpgradeEffect(ETB_UPGRADE_EFFECT.PLAYER_SPD); 이런식으로 사용 가능하고
+생각해보니 이거는 저장이 목적이니까 여기다가 레벨별로 더하거나 뭐 그런게 필요하겠네 그래서 같은 아이디에 여러 레벨 그게
+fund 같은 경우에는 쭈루룩 목록처럼 enum이 되어있어서 그 enum에 해당하는 value를 try get 해보거나 add 해보거나 set 하는게 맞고
+upgrade 같은 경우에는 얼마나 업그레이드가 됐는지가 중요한거니까 add amount 해서 이건 다른 테이블에서 그때 불러와서 add 해놓고 겜 시작 전에 기본 능력 + try get value 해가지고 시작하기
+
+UserData_player에 이제 기록 저장
+
+7.19
+광물 push Ok
+광물 5종 추가 Ok
+로켓 추가 Ok
+Outgame upgrade 어느정도 완성 Ok
+튜토 Ok
+
+
+터렛 하나 더 추가 (광물 캐오기??)
+복귀해야 더해지는걸로 바꾸기
+무기 업그레이드 디버깅 (rotation speed 포함)
+
+체력, 체력 회복 등 추가
+
+소리 추가.
+기지에 고철, exp 획득 collider 달아주기
+기지 안에서는 속도 모두 느려지게 만들기
+유저가 기지 안에 있으면 터렛 능력치 상승하게 만들기
+(sprite 바꿀 수 있으면 best) 최종레벨
+
+보스몹 디자인 여러개 하고싶은데
+
+fingerstick command 개편 - 그냥 셋다 퉁쳐서 편한대로 쓰게 만들고 캐릭터 따라서 약간씩 능력만 바꾸고싶은디 
+밸런스: 최대 속도 만들기 보스 계속 나오게 하기
+속도 조절 버튼 제대로 만들기
+최대 exp 만들기
+기믹 만들기
+기지 데미지 (마늘) 만들기
+
+상수 or 하드코딩 table로 빼기
+
+

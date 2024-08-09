@@ -1,0 +1,10 @@
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\bin\Debug\Patch.exe.config
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\bin\Debug\Patch.exe
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\bin\Debug\Patch.pdb
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.csproj.AssemblyReference.cache
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.MainPanel.resources
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.Properties.Resources.resources
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.csproj.GenerateResource.cache
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.csproj.CoreCompileInputs.cache
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.exe
+C:\Users\naddic\Documents\GitHub\VSLike\SampleProject\Exporter\Patch\obj\Debug\Patch.pdb

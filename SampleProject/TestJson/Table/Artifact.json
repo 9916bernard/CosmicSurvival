@@ -1,0 +1,53 @@
+{
+  "1001": [
+    {
+      "ArtifactID": 1001,
+      "Grade": "unique",
+      "Name": "\uB124\uC78E\uD074\uB85C\uBC84"
+    },
+    {
+      "ArtifactID": 1001,
+      "Grade": "",
+      "Name": "\uB0C9\uAC01\uAE30"
+    },
+    {
+      "ArtifactID": 1001,
+      "Grade": "",
+      "Name": "\uC218\uB9AC\uB4DC\uB860"
+    }
+  ],
+  "1002": [
+    {
+      "ArtifactID": 1002,
+      "Grade": "",
+      "Name": ""
+    },
+    {
+      "ArtifactID": 1002,
+      "Grade": "",
+      "Name": ""
+    },
+    {
+      "ArtifactID": 1002,
+      "Grade": "",
+      "Name": ""
+    }
+  ],
+  "2004": [
+    {
+      "ArtifactID": 2004,
+      "Grade": "",
+      "Name": ""
+    },
+    {
+      "ArtifactID": 2004,
+      "Grade": "",
+      "Name": ""
+    },
+    {
+      "ArtifactID": 2004,
+      "Grade": "",
+      "Name": ""
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "1001": {
+    "ID": 1001,
+    "Grade": "Normal",
+    "SpawnRate": 4,
+    "IncreaseRate": 240,
+    "MaxSpawnRate": 0.100000001
+  },
+  "3001": {
+    "ID": 3001,
+    "Grade": "Boss",
+    "SpawnRate": 1,
+    "IncreaseRate": 0,
+    "MaxSpawnRate": 0
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "ServerResetTime": 4,
+  "StoryCastleList": [
+    1001,
+    1002,
+    1003
+  ],
+  "DefaultPlayerCharacterID": 1001,
+  "DefaultFormationID": 1001,
+  "UnitScale": 0.400000006,
+  "UnitScaleNext": 0.400000006,
+  "UnitScaleLeader": 0.600000024,
+  "UnitRotateLeft": {
+    "x": 0,
+    "y": 180,
+    "z": 0
+  },
+  "UnitRotateRight": {
+    "x": 0,
+    "y": 0,
+    "z": 0
+  },
+  "NextPosLeft": {
+    "x": -1.20000005,
+    "y": 3.20000005,
+    "z": 3
+  },
+  "NextPostRight": {
+    "x": 1.20000005,
+    "y": 3.20000005,
+    "z": 3
+  },
+  "NextDistanceLeft": -0.5,
+  "NextDistanceRight": 0.5,
+  "StartPostLeft": {
+    "x": -6,
+    "y": 6
+  },
+  "StartPostRight": {
+    "x": 6,
+    "y": 6
+  },
+  "UpgradeMineralList": [
+    {
+      "FundType": 3,
+      "Buy": 200,
+      "Sell": 100
+    },
+    {
+      "FundType": 4,
+      "Buy": 200,
+      "Sell": 100
+    },
+    {
+      "FundType": 5,
+      "Buy": 200,
+      "Sell": 100
+    },
+    {
+      "FundType": 6,
+      "Buy": 200,
+      "Sell": 100
+    },
+    {
+      "FundType": 7,
+      "Buy": 200,
+      "Sell": 100
+    },
+    {
+      "FundType": 8,
+      "Buy": 200,
+      "Sell": 100
+    }
+  ]
+}

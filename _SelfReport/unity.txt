@@ -1,0 +1,86 @@
+Texture을 수정하고 나면 .Apply() 해줘야함
+계속 하던 방식은 Texture을 수정해서(setpixel) spriteRenderer로 sprite에 create 해서 적용하는 방식.
+
+.GetComponent<> 같은건 여러번 할때는 한번 하고 변수에 저장하고 사용하기. 
+
+
+[SerializeField] - private을 유니티 에디터에서 바꿀 수 있게 해줌.
+왠만하면 변수들은 private으로 설정하고 바꿔야하는 경우에 이걸 써주는게 좋음 (다른곳에서 써야하는게 아니면)
+
+더 상위 부모 클레스의 initialize같은걸 하지는 않음.
+____________________
+Pool:
+ObjectPool 이라는 만들어진 Pool format을 가지고 있다.
+이때 Pool로 만들 클레스가 ex) Bullet면
+
+부모 클레스 여기서는 Field에서 
+Private ObjectPool<Bullet> _bullet_pool = new(); 만들고   <= 얘를 Field에서 만들고 각 하위 클레스에서 받아쓰기때문에 Field에 생성
+Init()에서 _bullet_pool.Init(transform, Bullet.Factory,5) <= 얘는 ObjectPool의 Init이다.
+를 하면 Bullet 내의 MakeFactory 가 호출되고
+public static Bullet MakeFactory(ObjectPoolSimple<Bullet> pool)
+{
+    var _obj = Resources.Load("Bullet/BulletUnit_001");
+    var _Bullet = Instantiate(_obj).GetComponent<Bullet>(); 
+
+    _Bullet.SetPool(pool);
+
+    return _Bullet;
+}
+ 
+
+
+public void SetPool(ObjectPool<Bullet> pool)
+{
+	_pool = pool;      <= _pool에 field에서 instantiate한 objectpool<bullet> 이 들어감.
+}
+
+이러고 나면 _pool.push(this) 이런게 가능해짐 <= 여기서 deactivate 도 해줌.
+
+______________________
+테이블 작성
+	define enum(이 필요한 이유?) - Struct 형식일경우? Stat
+	System excel, 등등 이름은 안의 내용 분류 
+	define column에서 각 변수의 datatype, keytype, usage 등을 정의할 수 있고
+		Keytype - 없음: find 불가능(이 경우가 뭐였지?) 형식, 1: unique data, Dict 2: Dict, list
+	Define data에서 이를 이용해 struct를 짜며 actual data를 배정할 수 있다. 
+
+테이블 불러오기
+	수정하거나 새로 만들었으면 추출기에서 추출 => binary txt 파일로 변환
+	만들어진 program.cs 에서 NPOI를 이용해서 읽어옴
+	login같은 시작 화면에서 로드
+
+___________________
+
+디버깅
+조사식 추가 복붙으로 가능, 커맨드 바꿔서 많이함
+빨간점 우클릭 해서 조건식같은거 걸 수 있음.
+디버깅 중 변수 위에 커서로 value 확인할때 직접 바꿀 수 있음. 
+
+___________________
+
+UI
+UIM 은 기본적으로 매니저인데 여기에 있는 UIContainer은 Layer 별로 있는것으로 base, popup, 그 위 (toast, effect) 정도로 이루어져 있다
+켄버스는 그 안에 UI가 변화하면 reload 하는 단위지만 보통은 하나로 쓴다.
+클래스 앞에 partial을 붙혀서 같은 클래스를 여러장으로 나누어서 쓸 수 있다. UIM 같은 경우에는 Language가 이런식으로 분리되어있다. => Language 이미 로딩된 애들 처리방식 (dirty 표시, refresh 등등)
+폰겜 특히 백버튼이 있는 안드로이드같은 경우는 ESC 를 통해 뒤로 나가는게 필요해서 들어있다. 
+
+ui 할때 Scale 은 진짜 왠만하면 건드리지 말고 그 위에 있는 애들로 크기 조절하기
+Raycast padding 이 image 에 존재하기는 하나 UI 를 할때는 딱 맞게 이미지를 조절해서 쓰는게 좋음.
+___________________
+inspecter에서 typemismatch 나는거 종류가 전부 똑같지 않아서 그런듯??? none 으로 두더라도
+
+____________________
+CanvasGorup - 이 밑에 애들까지 다 alpha 맥일때 사용
+start, awake, ondestroy 사용은 줄이는게 좋음 
+
+DoTween oncomplete에 script 해놓으면 애니가 끝나고 나서 script가 적용됨. => upgrade 같은 경우 날아오는동안 적용되면 안되는 그런 케이스
+
+Refresh(framework 일부) 원레는 Action-onfundchange를 쓰는데 이걸 쓰면 지금 떠있는 popup같은걸 다 추적해서 바꾸는데 error 가 많이 발생함.
+그래서 framework에서 fund, account 같은 type을 만들어서 바뀔때 이거이거 바뀐다고 전달하면 그것들만 refresh 한다.
+
+___________________
+
+Update도 start 처럼 init 안해도 그냥 시작하기때문에 우선순위가 애매함.
+
+
+

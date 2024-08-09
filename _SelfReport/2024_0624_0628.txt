@@ -1,0 +1,91 @@
+6.24
+대부분의 시간에 Framework 에 옮기는 작업 계속함.
+한번에 가져오고 정리하려고 했더니 에러가 엄청뜸. 가끔 중복으로 가져온 Script도 에러뜸. 다 주석처리하고 하나씩 가져옴.
+
+실행될때 어떤 클래스의 Start() 가 먼저 실행될지 알 수 없기 때문에 Project 세팅에서 설정하거나 이번같은 경우에는 SceneManager격인
+클래스에서 Field를 먼저 init 해주고 나머지 Pooling이 필요한 클래스들을 SetActive 해줌.
+
+클래스들에 하드코딩으로 짜여있던 Stat같은 상수들을 Table에서 정의하여 받아오는것 성공.
+
+아직 마무리 안된것
+1.Health 부분의 Ui가 아직 마무리되지않음
+2.Upgrade 할때 필요한 스텟에 따라 Bullet, PlayerController 따로 접근하는게 별로여서 PlayerController에서 Fire 할때 Table에서 읽어와서
+Bullet을 init 할때 넘겨주는식으로 코드를 짰는데 정작 그 Fire method를 쓰지 않고 Bullet Spawner에서 Pooling을 통해 Field에서 미리 만들어진
+Bullet들을 가져온다는걸 깨달음. 따라서 Field에서 Init 해서 넘겨줬더니 총알이 처음 Factory 한 만큼만 나옴. 또한 여전히 Upgrade 가두개의 
+클래스에 접근해야함. 아 init 다시 할때 Bulletlifetime 초기화 안해줘서 그런가??? 다시보기
+3.Level up UI를 성공적으로 Implement 한듯 싶으나 Text가 무슨 이유인지 바뀌지 않음.
+
+
+6.25
+init할때 lifetime 초기화 안시켜줘서 그런게 맞았음.
+Text는 Legacy로 설정이 안돼 있었어서 그랬음.
+
+Hp bar, game over, level up 정상적으로 옮겼고
+하드코딩으로 되어있는 수치들 테이블로 옮김.
+
+
+해상도 이슈? - font 이슈
+Enemy Table 에 Spawn 관련 Struct - 확인
+struct 보고 나서 character upgrade 도 Table로 옮기기.
+
+enemy spawn 장소 생성/삭제
+이제 레이저랑 로켓 넣기랑
+
+
+restart 시 ui error
+graph error??
+
+TABLE.~~ ++ 이런식으로 하면 파일의 값이 변화?? 끝나면 초기화??
+
+업글 방식을 버튼마다 모든 무기를 맵핑하는건 비효율적인가???
+그럼 BattleField에서 Pool 할때마다 TABLE 에서 읽어오고 Upgrade에서는 TABLE을 업데이트 하는 방식은 효율적인가??
+
+업글 하고 나서는 다시 무기 추가
+
+6.26
+
+UI
+UIM 은 기본적으로 매니저인데 여기에 있는 UIContainer은 Layer 별로 있는것으로 base, popup, 그 위 (toast, effect) 정도로 이루어져 있다
+켄버스는 그 안에 UI가 변화하면 reload 하는 단위지만 보통은 하나로 쓴다.
+클래스 앞에 partial을 붙혀서 같은 클래스를 여러장으로 나누어서 쓸 수 있다. UIM 같은 경우에는 Language가 이런식으로 분리되어있다. => Language 이미 로딩된 애들 처리방식 (dirty 표시, refresh 등등)
+폰겜 특히 백버튼이 있는 안드로이드같은 경우는 ESC 를 통해 뒤로 나가는게 필요해서 들어있다. 
+
+ui 들을 내 게임에 맞게 변경 (prefab 변경)
+pause game을 timescale = 0 로 하니까 couroutine들이 망가짐. 지금까지는 realtime 으로 바꿔보기, game start 하기 전까지 couroutine 막기, 해봄. pause 빼면 작동함.
+rangedrone 만듦 얘도 couroutine때문에 안됨.
+Upgrade는 userdata 뒤로 미뤄둠.
+
+
+6.27
+ui atlas는 설정된 폴더 내에 있는 그림들을 atlas 하나로 묶어서 한번의 drawcall 만 발생시킨다.
+main화면에 있던 아이콘들을 기존 아이콘의 설정에 덮어씌움.
+couroutine 안되던 애들 update로 바꿔서 성공.
+넉백 기준 세워야함.
+근접 무기 추가함.
+
+
+로켓,rangedrone,sword 범위 추가
+모든 무기 넉백 추가.
+
+exp가 base 쪽으로 이동하는 기능
+
+제일 급한게 업글인데 - 어디에서 모아서 버튼으로 접근하고 어떤게 active고 inactive인지 알 것인가
+업글 스텟 기획함 - 테이블로 수치 변경 -- 수치 변경 좀 더 점검해야함 rocket spqwner rate 이런거
+6.28
+업데이트 생각한건: 그냥 한 script에서 TABLE 에서 데이터를 다 미리 꺼내와서 모든 equipments 나 character에 넣어놓고
+levelup button이 눌리면 그 script에서 Table에 적혀있는 만큼 수치를 변경하기. 이러면 TABLE 에 있는 데이터가 바뀌지 않음. 
+
+근데 이렇게 weapondata 에서 awake 할때 다 불러와서 주는것까지는 좋은데 다른 버튼같은데서 이제 눌러서 weapondata의 수치를 바꿨을때
+이게 awake에서 하는거다 보니 그 바뀐 수치가 다시 weapon으로 전달되지 않음. 둘다 update를 쓰기에는 너무 낭비같고 
+
+월요일:
+Canvas Ui 안에 있는 area ui 들에 지금까지 만든 ui들을 넣어야한다. 하나의 캔버스로 Battle ui를 처리? 그렇다면 지금 Start버튼 같은 경우에는 
+
+destroy on load 되지 않는 Manager가 필요할듯
+
+하나의 Manager를 만드는데 지금같은 경우는 Battle manager를 만들어서 한번 시작하고 끝까지 관리하는 관리자처럼 필요하다. - 지금은 player controller가 levelup damage ui 이런걸 다 가지고 있는데 이런걸 얘가 해야한다.
+이게 battlefield가 될 수도 있지만 지금 내가 만들어놓은것같은 경우에는 실제 battle 안에서 쓰이는 애들이 첫 인터페이스부터 있기 때문에 
+
+TABLE 같은 경우에는 20레벨정도면 쭉 스텟을 다 만들어놓는것도 좋다. (Struct 만들어서)
+
+Scene main에서 시작해도 start에서 시작한걸로 처리하기

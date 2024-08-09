@@ -1,0 +1,2592 @@
+6/11
+
+처음 해본것
+1. 2d collider 를 얇게 펴서 각 bg의 테두리에 총 4개씩 배정 up down left right
+2. collider에 따라 panel number 바꿔주기 ex) up 일경우 +6 mod 9, right 일 경우 -1 mod 9
+PanelCollider:
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PanelCollider : MonoBehaviour
+{
+    private BgManager bgManager;
+    public int panelNumber;
+    private BoxCollider2D boxCollider;
+    private Transform parentTransform;
+
+    void Start()
+    {
+        bgManager = FindObjectOfType<BgManager>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        parentTransform = transform.parent;
+
+        if (bgManager == null)
+        {
+            Debug.LogError("BgManager not found in the scene.");
+        }
+        Debug.Log("PanelCollider attached to: " + gameObject.name + " with panel number: " + panelNumber);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.gameObject == bgManager.player)
+        {
+            Debug.Log("Player collided with: " + gameObject.name);
+            bgManager.MovePanel(gameObject.name, panelNumber);
+        }
+    }
+
+    public void UpdateColliderState(Vector3 playerPosition)
+    {
+        if (parentTransform == null)
+        {
+            Debug.LogError("Parent transform is not assigned.");
+            return;
+        }
+
+        Vector3 parentPosition = parentTransform.position;
+        Vector3 colliderPosition = Vector3.zero;
+        string colliderName = gameObject.name.ToLower();
+
+        if (colliderName.Contains("leftcollider"))
+        {
+            colliderPosition = new Vector3(parentPosition.x - boxCollider.size.x / 2, parentPosition.y, parentPosition.z);
+            boxCollider.enabled = playerPosition.x < colliderPosition.x;
+        }
+        else if (colliderName.Contains("rightcollider"))
+        {
+            colliderPosition = new Vector3(parentPosition.x + boxCollider.size.x / 2, parentPosition.y, parentPosition.z);
+            boxCollider.enabled = playerPosition.x > colliderPosition.x;
+        }
+        else if (colliderName.Contains("topcollider"))
+        {
+            colliderPosition = new Vector3(parentPosition.x, parentPosition.y + boxCollider.size.y / 2, parentPosition.z);
+            boxCollider.enabled = playerPosition.y > colliderPosition.y;
+        }
+        else if (colliderName.Contains("bottomcollider"))
+        {
+            colliderPosition = new Vector3(parentPosition.x, parentPosition.y - boxCollider.size.y / 2, parentPosition.z);
+            boxCollider.enabled = playerPosition.y < colliderPosition.y;
+        }
+
+        Debug.Log("Collider: " + gameObject.name + " | Player Position: " + playerPosition + " | Collider Position: " + colliderPosition + " | Collider Enabled: " + boxCollider.enabled);
+    }
+}
+
+다음 해본것
+1.player 위치 변화에 따라서 해주기 -> 대각선 다름, 가다 말면 lastpos가 이상해짐 그래서 토탈로 바꿔보기
+let's do this in different way. so the way we calculate which panel to move and how we will move will be same. However, we will not use the collider anymore. Instead, we will using how much the user moved to specific direction. For example, if the user moved to the right in total of 5 which is the half of panel's width, we will consider this as the user escaped the currentpanel and move the panel. Also, we would have to change the current panel.
+
+BgManager so far
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+    public float panelWidth;
+    public float panelHeight;
+
+    private Vector3 lastPlayerPosition;
+
+    void Start()
+    {
+        //if (bgs.Length > 0)
+        //{
+        //    panelWidth = bgs[0].transform.localScale.x;
+        //    panelHeight = bgs[0].transform.localScale.y;
+        //}
+
+        lastPlayerPosition = player.transform.position;
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        CheckPlayerMovement(playerPos);
+        Debug.Log(GetCurrentPanelNumber(playerPos));
+        MoveCamera(playerPos);
+    }
+
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+    void CheckPlayerMovement(Vector3 currentPlayerPosition)
+    {
+        Vector3 movement = currentPlayerPosition - lastPlayerPosition;
+
+        // Check horizontal movement
+        if (Mathf.Abs(movement.x) >= panelWidth / 2)
+        {
+            if (movement.x > 0)
+            {
+                // Player moved right
+                MovePanel("right", GetCurrentPanelNumber(currentPlayerPosition));
+            }
+            else
+            {
+                // Player moved left
+                MovePanel("left", GetCurrentPanelNumber(currentPlayerPosition));
+            }
+            lastPlayerPosition = currentPlayerPosition;
+        }
+
+        // Check vertical movement
+        if (Mathf.Abs(movement.y) >= panelHeight / 2)
+        {
+            if (movement.y > 0)
+            {
+                // Player moved up
+                MovePanel("up", GetCurrentPanelNumber(currentPlayerPosition));
+            }
+            else
+            {
+                // Player moved down
+                MovePanel("down", GetCurrentPanelNumber(currentPlayerPosition));
+            }
+            lastPlayerPosition = currentPlayerPosition;
+        }
+    }
+
+    int GetCurrentPanelNumber(Vector3 playerPosition)
+    {
+        int panelNumber = 0;
+        float x = playerPosition.x;
+        float y = playerPosition.y;
+
+        if (x < -panelWidth / 2 && y < -panelHeight / 2)
+        {
+            panelNumber = 7;
+        }
+        else if (x >= -panelWidth / 2 && x < panelWidth / 2 && y < -panelHeight / 2)
+        {
+            panelNumber = 8;
+        }
+        else if (x >= panelWidth / 2 && y < -panelHeight / 2)
+        {
+            panelNumber = 9;
+        }
+        else if (x < -panelWidth / 2 && y >= -panelHeight / 2 && y < panelHeight / 2)
+        {
+            panelNumber = 4;
+        }
+        else if (x >= -panelWidth / 2 && x < panelWidth / 2 && y >= -panelHeight / 2 && y < panelHeight / 2)
+        {
+            panelNumber = 5;
+        }
+        else if (x >= panelWidth / 2 && y >= -panelHeight / 2 && y < panelHeight / 2)
+        {
+            panelNumber = 6;
+        }
+        else if (x < -panelWidth / 2 && y >= panelHeight / 2)
+        {
+            panelNumber = 1;
+        }
+        else if (x >= -panelWidth / 2 && x < panelWidth / 2 && y >= panelHeight / 2)
+        {
+            panelNumber = 2;
+        }
+        else if (x >= panelWidth / 2 && y >= panelHeight / 2)
+        {
+            panelNumber = 3;
+        }
+
+        return panelNumber;
+    }
+
+
+    public void MovePanel(string direction, int currentPanelNumber)
+    {
+        int panelIndex = -1;
+        Vector3 newPosition = Vector3.zero;
+
+        switch (direction)
+        {
+            case "up":
+                panelIndex = (currentPanelNumber + 5) % 9 ;
+                newPosition = bgs[currentPanelNumber - 1].transform.position + Vector3.up * panelHeight ;
+                break;
+            case "left":
+                panelIndex = (currentPanelNumber +1) % 9 ;
+                newPosition = bgs[currentPanelNumber - 1].transform.position + Vector3.left * panelWidth ;
+                break;
+            case "right":
+                panelIndex = (currentPanelNumber - 3) % 9 ;
+                newPosition = bgs[currentPanelNumber - 1].transform.position + Vector3.right * panelWidth;
+                break;
+            case "down":
+                panelIndex = (currentPanelNumber - 7) % 9;
+                newPosition = bgs[currentPanelNumber - 1].transform.position + Vector3.down * panelHeight ;
+                break;
+        }
+
+        if (panelIndex != -1)
+        {
+            bgs[panelIndex].transform.position = newPosition;
+        }
+    }
+}
+
+6/12
+
+배운것
+1. index 찾는법 : update에서 프레임별로 10으로 나눠서 파악 : 옮겨서 0,0 : 1번 panel
+2. 각 panel별로 옆에 붙을 수 있는 panel number을 미리 list로 지정해놓기
+
+panel script
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BackgroundUnit : MonoBehaviour
+{
+    public BackgroundUnit up;
+    public BackgroundUnit upRight;
+    public BackgroundUnit right;
+    public BackgroundUnit downRight;
+    public BackgroundUnit down;
+    public BackgroundUnit downLeft;
+    public BackgroundUnit left;
+    public BackgroundUnit upLeft;
+
+    private Vector2 originalPosition;
+
+    void Start()
+    {
+        // Store the original position of the panel
+        originalPosition = transform.position;
+    }
+
+    public void MoveToPosition(Vector2 newPosition)
+    {
+        transform.position = newPosition;
+    }
+
+    public void ResetPosition()
+    {
+        transform.position = originalPosition;
+    }
+}
+
+음수인경우 - currnet panel은 제대로 나오게 고쳤는데 current panel이 이상한곳으로 튐. 그래서 카메라가 따라가게했더니 화면이 튐
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        SetupAdjacentPanels();
+        int lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        int lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+        int lastPanelIndex = (lastPanelY * 3 + lastPanelX) % 9; // Assuming a 3x3 grid
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+
+        if (lastPanelX != currentPanelX || lastPanelY != currentPanelY)
+        {
+            
+            if (currentPanelX <= -1)
+            {
+                currentPanelX = currentPanelX * -2;
+            }
+            if (currentPanelY <= -1)
+            {
+                currentPanelY = currentPanelY * -2;
+            }
+            int currentPanelIndex = (currentPanelY * 3 + currentPanelX) % 9; // Assuming a 3x3 grid
+            Debug.Log("Current panel index: " + currentPanelIndex);
+            MovePanels(currentPanelIndex);
+
+            lastPanelX = currentPanelX;
+            lastPanelY = currentPanelY;
+
+            RepositionPlayer(currentPanelIndex);
+        }
+
+       
+        // Move adjacent panels to ensure there are no empty spaces
+
+    }
+
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+    void MovePanels(int currentPanelIndex)
+    {
+        if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+        BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+        if (currentPanel == null) return;
+
+        Vector2 currentPosition = currentPanel.transform.position;
+
+        // Move adjacent panels to the correct positions relative to the current panel
+        if (currentPanel.up != null)
+            currentPanel.up.MoveToPosition(currentPosition + Vector2.up * panelHeight);
+        if (currentPanel.upRight != null)
+            currentPanel.upRight.MoveToPosition(currentPosition + new Vector2(panelWidth, panelHeight));
+        if (currentPanel.right != null)
+            currentPanel.right.MoveToPosition(currentPosition + Vector2.right * panelWidth);
+        if (currentPanel.downRight != null)
+            currentPanel.downRight.MoveToPosition(currentPosition + new Vector2(panelWidth, -panelHeight));
+        if (currentPanel.down != null)
+            currentPanel.down.MoveToPosition(currentPosition + Vector2.down * panelHeight);
+        if (currentPanel.downLeft != null)
+            currentPanel.downLeft.MoveToPosition(currentPosition + new Vector2(-panelWidth, -panelHeight));
+        if (currentPanel.left != null)
+            currentPanel.left.MoveToPosition(currentPosition + Vector2.left * panelWidth);
+        if (currentPanel.upLeft != null)
+            currentPanel.upLeft.MoveToPosition(currentPosition + new Vector2(-panelWidth, panelHeight));
+    }
+
+    void RepositionPlayer(int currentPanelIndex)
+    {
+        if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+        BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+        if (currentPanel == null) return;
+
+        Vector2 centerPosition = currentPanel.transform.position;
+        player.transform.position = new Vector3(centerPosition.x + panelWidth / 2, centerPosition.y + panelHeight / 2, player.transform.position.z);
+    }
+
+    void SetupAdjacentPanels()
+    {
+        // Get BackgroundUnit components
+        BackgroundUnit bg0 = bgs[0].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg1 = bgs[1].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg2 = bgs[2].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg3 = bgs[3].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg4 = bgs[4].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg5 = bgs[5].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg6 = bgs[6].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg7 = bgs[7].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg8 = bgs[8].GetComponent<BackgroundUnit>();
+
+        // Set adjacent panels for bg0
+        bg0.up = bg3;
+        bg0.upRight = bg4;
+        bg0.right = bg1;
+        bg0.downRight = bg5;
+        bg0.down = bg6;
+        bg0.downLeft = bg7;
+        bg0.left = bg2;
+        bg0.upLeft = bg8;
+
+        // Set adjacent panels for bg1
+        bg1.up = bg4;
+        bg1.upRight = bg5;
+        bg1.right = bg2;
+        bg1.downRight = bg6;
+        bg1.down = bg7;
+        bg1.downLeft = bg8;
+        bg1.left = bg0;
+        bg1.upLeft = bg3;
+
+        // Set adjacent panels for bg2
+        bg2.up = bg5;
+        bg2.upRight = bg6;
+        bg2.right = bg0;
+        bg2.downRight = bg7;
+        bg2.down = bg8;
+        bg2.downLeft = bg3;
+        bg2.left = bg1;
+        bg2.upLeft = bg4;
+
+        // Set adjacent panels for bg3
+        bg3.up = bg6;
+        bg3.upRight = bg7;
+        bg3.right = bg4;
+        bg3.downRight = bg8;
+        bg3.down = bg0;
+        bg3.downLeft = bg1;
+        bg3.left = bg5;
+        bg3.upLeft = bg2;
+
+        // Set adjacent panels for bg4
+        bg4.up = bg7;
+        bg4.upRight = bg8;
+        bg4.right = bg5;
+        bg4.downRight = bg0;
+        bg4.down = bg1;
+        bg4.downLeft = bg2;
+        bg4.left = bg3;
+        bg4.upLeft = bg6;
+
+        // Set adjacent panels for bg5
+        bg5.up = bg8;
+        bg5.upRight = bg0;
+        bg5.right = bg6;
+        bg5.downRight = bg1;
+        bg5.down = bg2;
+        bg5.downLeft = bg3;
+        bg5.left = bg4;
+        bg5.upLeft = bg7;
+
+        // Set adjacent panels for bg6
+        bg6.up = bg0;
+        bg6.upRight = bg1;
+        bg6.right = bg7;
+        bg6.downRight = bg2;
+        bg6.down = bg3;
+        bg6.downLeft = bg4;
+        bg6.left = bg5;
+        bg6.upLeft = bg8;
+
+        // Set adjacent panels for bg7
+        bg7.up = bg1;
+        bg7.upRight = bg2;
+        bg7.right = bg8;
+        bg7.downRight = bg3;
+        bg7.down = bg4;
+        bg7.downLeft = bg5;
+        bg7.left = bg6;
+        bg7.upLeft = bg0;
+
+        // Set adjacent panels for bg8
+        bg8.up = bg2;
+        bg8.upRight = bg3;
+        bg8.right = bg0;
+        bg8.downRight = bg4;
+        bg8.down = bg5;
+        bg8.downLeft = bg6;
+        bg8.left = bg7;
+        bg8.upLeft = bg1;
+    }
+
+
+
+
+}
+
+
+add z coordinate to 0 and change to vector3 fixed current panel to move togather. 카메라 따라가기 안씀
+잘됨.
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        SetupAdjacentPanels();
+        lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+        // Handle negative indices by wrapping around the grid size
+        int wrappedPanelX = Mod(currentPanelX, 3); // Assuming a 3x3 grid
+        int wrappedPanelY = Mod(currentPanelY, 3);
+
+        if (lastPanelX != currentPanelX || lastPanelY != currentPanelY)
+        {
+            int currentPanelIndex = GetPanelIndex(wrappedPanelX, wrappedPanelY);
+            Debug.Log("Current panel index: " + currentPanelIndex);
+
+            MovePanels(currentPanelIndex, currentPanelX, currentPanelY);
+
+            lastPanelX = currentPanelX;
+            lastPanelY = currentPanelY;
+
+            // Reposition player to the center of the new current panel
+            // RepositionPlayer(currentPanelIndex, wrappedPanelX, wrappedPanelY);
+        }
+    }
+
+
+     void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+    int GetPanelIndex(int x, int y)
+    {
+        return y * 3 + x; // Assuming a 3x3 grid
+    }
+
+    void MovePanels(int currentPanelIndex, int currentPanelX, int currentPanelY)
+    {
+        if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+        BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+        if (currentPanel == null) return;
+
+        
+        Vector2 currentPosition = new Vector2(currentPanelX * panelWidth, currentPanelY * panelHeight);
+        Debug.Log("Current :" + currentPosition);
+        // Move adjacent panels to the correct positions relative to the current panel
+        if (currentPanel.up != null)
+            currentPanel.up.MoveToPosition(new Vector3(currentPosition.x, currentPosition.y + panelHeight, 0));
+        if (currentPanel.upRight != null)
+            currentPanel.upRight.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y + panelHeight, 0));
+        if (currentPanel.right != null)
+            currentPanel.right.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y, 0));
+        if (currentPanel.downRight != null)
+            currentPanel.downRight.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y - panelHeight, 0));
+        if (currentPanel.down != null)
+            currentPanel.down.MoveToPosition(new Vector3(currentPosition.x, currentPosition.y - panelHeight, 0));
+        if (currentPanel.downLeft != null)
+            currentPanel.downLeft.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y - panelHeight, 0));
+        if (currentPanel.left != null)
+            currentPanel.left.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y, 0));
+        if (currentPanel.upLeft != null)
+            currentPanel.upLeft.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y + panelHeight, 0));
+        currentPanel.MoveToPosition(currentPosition);
+
+    }
+
+    void RepositionPlayer(int currentPanelIndex, int wrappedPanelX, int wrappedPanelY)
+    {
+        if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+        BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+        if (currentPanel == null) return;
+
+        float centerX = wrappedPanelX * panelWidth + panelWidth / 2.0f;
+        float centerY = wrappedPanelY * panelHeight + panelHeight / 2.0f;
+        player.transform.position = new Vector3(centerX, centerY, player.transform.position.z);
+    }
+
+    void SetupAdjacentPanels()
+    {
+        // Get BackgroundUnit components
+        BackgroundUnit bg0 = bgs[0].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg1 = bgs[1].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg2 = bgs[2].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg3 = bgs[3].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg4 = bgs[4].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg5 = bgs[5].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg6 = bgs[6].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg7 = bgs[7].GetComponent<BackgroundUnit>();
+        BackgroundUnit bg8 = bgs[8].GetComponent<BackgroundUnit>();
+
+        // Set adjacent panels for bg0
+        bg0.up = bg3;
+        bg0.upRight = bg4;
+        bg0.right = bg1;
+        bg0.downRight = bg5;
+        bg0.down = bg6;
+        bg0.downLeft = bg7;
+        bg0.left = bg2;
+        bg0.upLeft = bg8;
+
+        // Set adjacent panels for bg1
+        bg1.up = bg4;
+        bg1.upRight = bg5;
+        bg1.right = bg2;
+        bg1.downRight = bg6;
+        bg1.down = bg7;
+        bg1.downLeft = bg8;
+        bg1.left = bg0;
+        bg1.upLeft = bg3;
+
+        // Set adjacent panels for bg2
+        bg2.up = bg5;
+        bg2.upRight = bg6;
+        bg2.right = bg0;
+        bg2.downRight = bg7;
+        bg2.down = bg8;
+        bg2.downLeft = bg3;
+        bg2.left = bg1;
+        bg2.upLeft = bg4;
+
+        // Set adjacent panels for bg3
+        bg3.up = bg6;
+        bg3.upRight = bg7;
+        bg3.right = bg4;
+        bg3.downRight = bg8;
+        bg3.down = bg0;
+        bg3.downLeft = bg1;
+        bg3.left = bg5;
+        bg3.upLeft = bg2;
+
+        // Set adjacent panels for bg4
+        bg4.up = bg7;
+        bg4.upRight = bg8;
+        bg4.right = bg5;
+        bg4.downRight = bg0;
+        bg4.down = bg1;
+        bg4.downLeft = bg2;
+        bg4.left = bg3;
+        bg4.upLeft = bg6;
+
+        // Set adjacent panels for bg5
+        bg5.up = bg8;
+        bg5.upRight = bg0;
+        bg5.right = bg6;
+        bg5.downRight = bg1;
+        bg5.down = bg2;
+        bg5.downLeft = bg3;
+        bg5.left = bg4;
+        bg5.upLeft = bg7;
+
+        // Set adjacent panels for bg6
+        bg6.up = bg0;
+        bg6.upRight = bg1;
+        bg6.right = bg7;
+        bg6.downRight = bg2;
+        bg6.down = bg3;
+        bg6.downLeft = bg4;
+        bg6.left = bg5;
+        bg6.upLeft = bg8;
+
+        // Set adjacent panels for bg7
+        bg7.up = bg1;
+        bg7.upRight = bg2;
+        bg7.right = bg8;
+        bg7.downRight = bg3;
+        bg7.down = bg4;
+        bg7.downLeft = bg5;
+        bg7.left = bg6;
+        bg7.upLeft = bg0;
+
+        // Set adjacent panels for bg8
+        bg8.up = bg2;
+        bg8.upRight = bg3;
+        bg8.right = bg0;
+        bg8.downRight = bg4;
+        bg8.down = bg5;
+        bg8.downLeft = bg6;
+        bg8.left = bg7;
+        bg8.upLeft = bg1;
+    }
+
+    int Mod(int k, int n)
+    {
+        return ((k %= n) < 0) ? k + n : k;
+    }
+}
+
+
+되긴했는데 다른 패널로 넘어갈때 정확하게 바뀌지 않음
+또 한칸 움직일때마다 8개씩 만들어야해서 비효율적임.
+그래서 1칸 만들고 가지고 있는 updown index로 3개씩 가로 세로 구분해서 움직이게 만들어보기
+
+
+
+그 지금 패널 계산 어떻게됐는지 보기
+오른쪽으로 두번 갔을때 안됨.
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    [SerializeField] private List<BackgroundUnit> _BackgroundUnitList = null;
+
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private BackgroundUnit currentBgUnit = null;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        //SetupAdjacentPanels();
+        lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+
+        for (int i = 0; i < _BackgroundUnitList.Count; i++)
+        {
+            _BackgroundUnitList[i].Init(i);
+        }
+
+        currentBgUnit = _BackgroundUnitList[4];
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+        // Handle negative indices by wrapping around the grid size
+        //int wrappedPanelX = Mod(currentPanelX, 3); // Assuming a 3x3 grid
+        //int wrappedPanelY = Mod(currentPanelY, 3);
+
+        //if (lastPanelX != currentPanelX || lastPanelY != currentPanelY)
+        //{
+        //    int currentPanelIndex = GetPanelIndex(wrappedPanelX, wrappedPanelY);
+        //    Debug.Log("Current panel index: " + currentPanelIndex);
+
+        //    //MovePanels(currentPanelIndex, currentPanelX, currentPanelY);
+
+        //    lastPanelX = currentPanelX;
+        //    lastPanelY = currentPanelY;
+
+        //    // Reposition player to the center of the new current panel
+        //    // RepositionPlayer(currentPanelIndex, wrappedPanelX, wrappedPanelY);
+        //}
+
+        if (lastPanelX != currentPanelX)
+        {
+            int nextIndex = 0;
+
+            if (lastPanelX < currentPanelX)
+            {
+                nextIndex = currentBgUnit.IndexLeft;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexRight;
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.x += (lastPanelX < currentPanelX ? panelWidth * 2 : -panelWidth * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.y += panelHeight;
+            _BackgroundUnitList[nextUnit.IndexUp].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.y -= panelHeight;
+            _BackgroundUnitList[nextUnit.IndexDown].MoveToPosition(pos);
+
+            
+            if (lastPanelX < currentPanelX)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexRight];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexLeft];
+            }
+            //얘 순서
+            lastPanelX = currentPanelX;
+        }
+
+        if (lastPanelY != currentPanelY)
+        {
+
+            int nextIndex = 0;
+
+            if (lastPanelY < currentPanelY)
+            {
+                nextIndex = currentBgUnit.IndexDown;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexUp;
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.y += (lastPanelY < currentPanelY ? panelHeight * 2: -panelHeight*2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.x += panelWidth;
+            _BackgroundUnitList[nextUnit.IndexRight].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.x -= panelWidth;
+            _BackgroundUnitList[nextUnit.IndexLeft].MoveToPosition(pos);
+
+            if (lastPanelY < currentPanelY)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexUp];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexDown];
+            }
+            lastPanelY = currentPanelY;
+        }
+    }
+
+    int Mod(int k, int n)
+    {
+        return ((k %= n) < 0) ? k + n : k;
+    }
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+    int GetPanelIndex(int x, int y)
+    {
+        return y * 3 + x; // Assuming a 3x3 grid
+    }
+
+    //void MovePanels(int currentPanelIndex, int currentPanelX, int currentPanelY)
+    //{
+    //    if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+    //    BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+    //    if (currentPanel == null) return;
+
+        
+    //    Vector2 currentPosition = new Vector2(currentPanelX * panelWidth, currentPanelY * panelHeight);
+    //    Debug.Log("Current :" + currentPosition);
+    //    // Move adjacent panels to the correct positions relative to the current panel
+    //    if (currentPanel.up != null)
+    //        currentPanel.up.MoveToPosition(new Vector3(currentPosition.x, currentPosition.y + panelHeight, 0));
+    //    if (currentPanel.upRight != null)
+    //        currentPanel.upRight.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y + panelHeight, 0));
+    //    if (currentPanel.right != null)
+    //        currentPanel.right.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y, 0));
+    //    if (currentPanel.downRight != null)
+    //        currentPanel.downRight.MoveToPosition(new Vector3(currentPosition.x + panelWidth, currentPosition.y - panelHeight, 0));
+    //    if (currentPanel.down != null)
+    //        currentPanel.down.MoveToPosition(new Vector3(currentPosition.x, currentPosition.y - panelHeight, 0));
+    //    if (currentPanel.downLeft != null)
+    //        currentPanel.downLeft.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y - panelHeight, 0));
+    //    if (currentPanel.left != null)
+    //        currentPanel.left.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y, 0));
+    //    if (currentPanel.upLeft != null)
+    //        currentPanel.upLeft.MoveToPosition(new Vector3(currentPosition.x - panelWidth, currentPosition.y + panelHeight, 0));
+    //    currentPanel.MoveToPosition(currentPosition);
+
+    //}
+
+    //void RepositionPlayer(int currentPanelIndex, int wrappedPanelX, int wrappedPanelY)
+    //{
+    //    if (currentPanelIndex < 0 || currentPanelIndex >= bgs.Length) return;
+
+    //    BackgroundUnit currentPanel = bgs[currentPanelIndex].GetComponent<BackgroundUnit>();
+    //    if (currentPanel == null) return;
+
+    //    float centerX = wrappedPanelX * panelWidth + panelWidth / 2.0f;
+    //    float centerY = wrappedPanelY * panelHeight + panelHeight / 2.0f;
+    //    player.transform.position = new Vector3(centerX, centerY, player.transform.position.z);
+    //}
+
+    //void SetupAdjacentPanels()
+    //{
+    //    // Get BackgroundUnit components
+    //    BackgroundUnit bg0 = bgs[0].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg1 = bgs[1].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg2 = bgs[2].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg3 = bgs[3].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg4 = bgs[4].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg5 = bgs[5].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg6 = bgs[6].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg7 = bgs[7].GetComponent<BackgroundUnit>();
+    //    BackgroundUnit bg8 = bgs[8].GetComponent<BackgroundUnit>();
+
+    //    // Set adjacent panels for bg0
+    //    bg0.up = bg3;
+    //    bg0.upRight = bg4;
+    //    bg0.right = bg1;
+    //    bg0.downRight = bg5;
+    //    bg0.down = bg6;
+    //    bg0.downLeft = bg7;
+    //    bg0.left = bg2;
+    //    bg0.upLeft = bg8;
+
+    //    // Set adjacent panels for bg1
+    //    bg1.up = bg4;
+    //    bg1.upRight = bg5;
+    //    bg1.right = bg2;
+    //    bg1.downRight = bg6;
+    //    bg1.down = bg7;
+    //    bg1.downLeft = bg8;
+    //    bg1.left = bg0;
+    //    bg1.upLeft = bg3;
+
+    //    // Set adjacent panels for bg2
+    //    bg2.up = bg5;
+    //    bg2.upRight = bg6;
+    //    bg2.right = bg0;
+    //    bg2.downRight = bg7;
+    //    bg2.down = bg8;
+    //    bg2.downLeft = bg3;
+    //    bg2.left = bg1;
+    //    bg2.upLeft = bg4;
+
+    //    // Set adjacent panels for bg3
+    //    bg3.up = bg6;
+    //    bg3.upRight = bg7;
+    //    bg3.right = bg4;
+    //    bg3.downRight = bg8;
+    //    bg3.down = bg0;
+    //    bg3.downLeft = bg1;
+    //    bg3.left = bg5;
+    //    bg3.upLeft = bg2;
+
+    //    // Set adjacent panels for bg4
+    //    bg4.up = bg7;
+    //    bg4.upRight = bg8;
+    //    bg4.right = bg5;
+    //    bg4.downRight = bg0;
+    //    bg4.down = bg1;
+    //    bg4.downLeft = bg2;
+    //    bg4.left = bg3;
+    //    bg4.upLeft = bg6;
+
+    //    // Set adjacent panels for bg5
+    //    bg5.up = bg8;
+    //    bg5.upRight = bg0;
+    //    bg5.right = bg6;
+    //    bg5.downRight = bg1;
+    //    bg5.down = bg2;
+    //    bg5.downLeft = bg3;
+    //    bg5.left = bg4;
+    //    bg5.upLeft = bg7;
+
+    //    // Set adjacent panels for bg6
+    //    bg6.up = bg0;
+    //    bg6.upRight = bg1;
+    //    bg6.right = bg7;
+    //    bg6.downRight = bg2;
+    //    bg6.down = bg3;
+    //    bg6.downLeft = bg4;
+    //    bg6.left = bg5;
+    //    bg6.upLeft = bg8;
+
+    //    // Set adjacent panels for bg7
+    //    bg7.up = bg1;
+    //    bg7.upRight = bg2;
+    //    bg7.right = bg8;
+    //    bg7.downRight = bg3;
+    //    bg7.down = bg4;
+    //    bg7.downLeft = bg5;
+    //    bg7.left = bg6;
+    //    bg7.upLeft = bg0;
+
+    //    // Set adjacent panels for bg8
+    //    bg8.up = bg2;
+    //    bg8.upRight = bg3;
+    //    bg8.right = bg0;
+    //    bg8.downRight = bg4;
+    //    bg8.down = bg5;
+    //    bg8.downLeft = bg6;
+    //    bg8.left = bg7;
+    //    bg8.upLeft = bg1;
+    //}
+
+    
+}
+
+성공 주석 지우기전
+
+
+이제 3*3 이 아니여도 작동하게 만들기/ git 올리기
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BackgroundUnit : MonoBehaviour
+{
+    public BackgroundUnit up;
+    public BackgroundUnit upRight;
+    public BackgroundUnit right;
+    public BackgroundUnit downRight;
+    public BackgroundUnit down;
+    public BackgroundUnit downLeft;
+    public BackgroundUnit left;
+    public BackgroundUnit upLeft;
+
+    private int _IndexLeft = 0;
+    public int IndexLeft => _IndexLeft;
+    private int _IndexRight = 0;
+    public int IndexRight => _IndexRight;
+    private int _IndexUp = 0;
+    public int IndexUp => _IndexUp;
+    private int _IndexDown = 0;
+    public int IndexDown => _IndexDown;
+
+    private int _Index = 0;
+    public int Index => _Index;
+    private Vector2 originalPosition;
+
+    private Vector2 _Pos = Vector2.zero;
+    public Vector2 Pos => _Pos;
+
+    public int RowNumber;
+    public int ColumnNumber;
+
+    void Start()
+    {
+        // Store the original position of the panel
+        originalPosition = transform.position;
+    }
+
+    public void Init(int index)
+    {
+        _Index = index;
+
+        int row = _Index / ColumnNumber;
+        int col = _Index % ColumnNumber;
+
+        _IndexLeft = GetWrappedIndex(row, col - 1);
+        _IndexRight = GetWrappedIndex(row, col + 1);
+        _IndexUp = GetWrappedIndex(row + 1, col);
+        _IndexDown = GetWrappedIndex(row - 1, col);
+
+        // Store the panel position for reference
+        _Pos = new Vector2(col * 10, row * 10);
+
+        transform.localPosition = _Pos;
+
+    }
+
+    private int GetWrappedIndex(int row, int col)
+    {
+        // Wrap the row and column indices around the grid size (3x3 grid)
+        row = (row + RowNumber) % RowNumber;
+        col = (col + ColumnNumber) % ColumnNumber;
+        return row * ColumnNumber + col;
+    }
+
+    public void MoveToPosition(Vector3 newPosition)
+    {
+        _Pos = newPosition;
+        transform.localPosition = _Pos;
+    }
+
+    public void ResetPosition()
+    {
+        transform.localPosition = originalPosition;
+    }
+}
+
+
+4*3 으로 했더니 out of range 뜸.
+
+- left는 맞아보임 -up도 맞아보임.
+BgManager 쪽 봐야할듯
+
+
+6.13
+column row 수식에 들어가는 부분이 문제였음
+이제는 얼마나 움직이는지 고치고
+배경화면들이 다 처음부터 하나씩 그려서 있는게 아니고 필요한만큼 만들어지게 (만들어지고 각 image에 숫자)
+
+
+3*3 으로 복구하고 이미지 바꿔서 생성하는거 해보기.
+
+3*3 복구 완. 
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BackgroundUnit : MonoBehaviour
+{
+    public BackgroundUnit up;
+    public BackgroundUnit upRight;
+    public BackgroundUnit right;
+    public BackgroundUnit downRight;
+    public BackgroundUnit down;
+    public BackgroundUnit downLeft;
+    public BackgroundUnit left;
+    public BackgroundUnit upLeft;
+
+    private int _IndexLeft = 0;
+    public int IndexLeft => _IndexLeft;
+    private int _IndexRight = 0;
+    public int IndexRight => _IndexRight;
+    private int _IndexUp = 0;
+    public int IndexUp => _IndexUp;
+    private int _IndexDown = 0;
+    public int IndexDown => _IndexDown;
+
+    private int _Index = 0;
+    public int Index => _Index;
+    private Vector2 originalPosition;
+
+    private Vector2 _Pos = Vector2.zero;
+    public Vector2 Pos => _Pos;
+
+    public int RowNumber;
+    
+    public int ColumnNumber;
+
+    void Start()
+    {
+        //var tex1 = GetComponent<MeshRenderer>().material.GetTexture(0);
+        //var tex2d = GetComponent<MeshRenderer>().materials[0].mainTexture as Texture2D;
+
+        //for (int i = 0; i < tex2d.width; i++)
+        //{
+        //    for (int j = 0; j < tex2d.height; j++)
+        //    {
+        //        tex2d.SetPixel(i, j, Color.white);
+        //    }
+        //}
+
+        //tex2d.Apply();
+
+        // Store the original position of the panel
+        originalPosition = transform.position;
+    }
+
+    public void Init(int index)
+    {
+        _Index = index;
+
+        int row = _Index / RowNumber;
+        int col = _Index % ColumnNumber;
+
+        _IndexLeft = GetWrappedIndex(row, col - 1);
+        _IndexRight = GetWrappedIndex(row, col + 1);
+        _IndexUp = GetWrappedIndex(row + 1, col);
+        _IndexDown = GetWrappedIndex(row - 1, col);
+
+        // Store the panel position for reference
+        _Pos = new Vector2(col * 10, row * 10);
+
+        transform.localPosition = _Pos;
+
+    }
+
+    private int GetWrappedIndex(int row, int col)
+    {
+        // Wrap the row and column indices around the grid size (3x3 grid)
+        row = (row + RowNumber) % RowNumber;
+        col = (col + ColumnNumber) % ColumnNumber;
+        return row * ColumnNumber + col;
+    }
+
+    public void MoveToPosition(Vector3 newPosition)
+    {
+        _Pos = newPosition;
+        transform.localPosition = _Pos;
+    }
+
+    public void ResetPosition()
+    {
+        transform.localPosition = originalPosition;
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    [SerializeField] private List<BackgroundUnit> _BackgroundUnitList = null;
+
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+    public int rowNumber ; // Set the number of rows
+    public int columnNumber ; // Set the number of columns
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private BackgroundUnit currentBgUnit = null;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        //SetupAdjacentPanels();
+        lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+
+        for (int i = 0; i < _BackgroundUnitList.Count; i++)
+        {
+            _BackgroundUnitList[i].Init(i);
+        }
+
+        currentBgUnit = _BackgroundUnitList[columnNumber + 1];
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+        if (lastPanelX != currentPanelX)
+        {
+            int nextIndex = 0;
+
+            if (lastPanelX < currentPanelX)
+            {
+                nextIndex = currentBgUnit.IndexLeft;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexRight + (columnNumber - 3);
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.x += (lastPanelX < currentPanelX ? panelWidth * (columnNumber - 1) : -panelWidth * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.y += panelHeight;
+            _BackgroundUnitList[nextUnit.IndexUp].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.y -= panelHeight;
+            _BackgroundUnitList[nextUnit.IndexDown].MoveToPosition(pos);
+
+            
+            if (lastPanelX < currentPanelX)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexRight];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexLeft];
+            }
+            //얘 순서
+            lastPanelX = currentPanelX;
+        }
+
+        if (lastPanelY != currentPanelY)
+        {
+
+            int nextIndex = 0;
+
+            if (lastPanelY < currentPanelY)
+            {
+                nextIndex = currentBgUnit.IndexDown;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexUp;
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.y += (lastPanelY < currentPanelY ? panelHeight * 2 : -panelHeight * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.x += panelWidth;
+            _BackgroundUnitList[nextUnit.IndexRight].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.x -= panelWidth;
+            _BackgroundUnitList[nextUnit.IndexLeft].MoveToPosition(pos);
+
+            if (lastPanelY < currentPanelY)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexUp];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexDown];
+            }
+            lastPanelY = currentPanelY;
+        }
+
+    }
+
+
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+ 
+
+    
+}
+
+
+bg 세팅 없이 하나로 9개 만들기, 숫자 적기 완료
+
+using System.Collections;
+using System.Collections.Generic;
+using System.Drawing;
+using Unity.Mathematics;
+using UnityEngine;
+using Color = UnityEngine.Color;
+
+public class BgGenerator : MonoBehaviour
+{
+    public GameObject bgPrefab; // Assign the bg0 prefab in the Inspector
+    public int rowNumber = 3; // Set the number of rows
+    public GameObject bg0;
+    public int columnNumber = 3; // Set the number of columns
+    public float tileWidth = 10f; // Width of each tile
+    public float tileHeight = 10f; // Height of each tile
+
+    private List<BackgroundUnit> backgroundUnitList = new List<BackgroundUnit>();
+
+    void Start()
+    {
+        if (bg0 != null)
+        {
+            bg0.SetActive(true);
+        }
+        GenerateBackgroundTiles();
+        ConnectToBgManager();
+        DeactivateOriginalBg();
+    }
+
+    void GenerateBackgroundTiles()
+    {
+        for (int row = 0; row < rowNumber; row++)
+        {
+            for (int col = 0; col < columnNumber; col++)
+            {
+                // Calculate the position for the new tile
+                Vector3 position = new Vector3(col * tileWidth, row * tileHeight, 0);
+
+                // Instantiate a new tile
+                GameObject newTile = Instantiate(bgPrefab, position, Quaternion.identity); //no rotation
+                newTile.transform.parent = transform; // Set the new tile as a child of the BgGenerator
+
+                // Initialize the BackgroundUnit component
+                BackgroundUnit bgUnit = newTile.GetComponent<BackgroundUnit>();
+                if (bgUnit != null)
+                {
+                    bgUnit.RowNumber = rowNumber;
+                    bgUnit.ColumnNumber = columnNumber;
+                    bgUnit.Init(row * columnNumber + col);
+                    //pass info
+
+                    // Add the new tile to the list
+                    backgroundUnitList.Add(bgUnit);
+                }
+
+                ModifyTileAppearance(newTile, row * columnNumber + col);
+            }
+        }
+    }
+
+    void ConnectToBgManager()
+    {
+        BgManager bgManager = FindObjectOfType<BgManager>();
+        if (bgManager != null)
+        {
+            bgManager.SetBackgroundUnitList(backgroundUnitList);
+        }
+    }
+
+    void DeactivateOriginalBg()
+    {
+        if (bg0 != null)
+        {
+            bg0.SetActive(false);
+        }
+    }
+
+    void ModifyTileAppearance(GameObject tile, int index)
+    {
+        SpriteRenderer spriteRenderer = tile.GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+        {
+            Debug.Log("sprite renderer null");
+        }
+
+        spriteRenderer.color = new Color(1,1,1,1);
+        //just for test
+
+        Texture2D texture = spriteRenderer.sprite.texture;
+
+        if (spriteRenderer == null)
+        {
+            Debug.Log("texture null");
+        }
+
+        Texture2D newTexture = new Texture2D(texture.width, texture.height); //we need new texture to write
+
+        newTexture.SetPixels(texture.GetPixels()); //copy pixels from original texture
+
+        Color indexColor = Color.white;
+        char c = index.ToString()[0]; // Convert index to character
+
+        int startX = 400; // Starting x position for the character (adjusted for larger texture)
+        int startY = 400; // Starting y position (adjusted for larger texture)
+        int pixelSize = 30; // Size of each "pixel" of the character in the texture
+
+        for (int x = 0; x < 3; x++) // Adjust these loops to match your digit patterns
+        {
+            for (int y = 0; y < 5; y++)
+            {
+                if (ShouldSetPixel(c, x, y))
+                {
+                    int invertedY = 4 - y; //upsidedown
+                    // Draw a larger "pixel" to make the digit more visible
+                    for (int i = 0; i < pixelSize; i++)
+                    {
+                        for (int j = 0; j < pixelSize; j++)
+                        {
+                            newTexture.SetPixel(startX + x * pixelSize + i, startY + invertedY * pixelSize + j, indexColor);
+                        }
+                    }
+                }
+            }
+        }
+
+        newTexture.Apply();
+
+        // Assign the modified texture to the SpriteRenderer
+        spriteRenderer.sprite = Sprite.Create(newTexture, spriteRenderer.sprite.rect, new Vector3(0.5f, 0.5f,1)); //0.5 is pivot
+
+
+
+
+    }
+
+    bool ShouldSetPixel(int c, int x, int y)
+    {
+        // Simple representation of digits as 5x7 pixel patterns
+        // Add more patterns as needed for different characters
+        string[] digits = {
+            "111101101101111", // 0
+            "010110010010111", // 1
+            "111001111100111", // 2
+            "111001111001111", // 3
+            "101101111001001", // 4
+            "111100111001111", // 5
+            "111100111101111", // 6
+            "111001001001001", // 7
+            "111101111101111", // 8
+            "111101111001111"  // 9
+        };
+
+        if (c >= '0' && c <= '8')
+        {
+            int index = c - '0';
+            Debug.Log("yes");
+            return digits[index][x + y * 3] == '1';
+        }
+        return false;
+
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    [SerializeField] private List<BackgroundUnit> _BackgroundUnitList = null;
+
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+    public int rowNumber ; // Set the number of rows
+    public int columnNumber ; // Set the number of columns
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private BackgroundUnit currentBgUnit = null;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        //SetupAdjacentPanels();
+        lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+
+        //for (int i = 0; i < _BackgroundUnitList.Count; i++)
+        //{
+        //    _BackgroundUnitList[i].Init(i);
+        //}
+
+        currentBgUnit = _BackgroundUnitList[columnNumber + 1];
+    }
+
+    private void Update()
+    {
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+        if (lastPanelX != currentPanelX)
+        {
+            int nextIndex = 0;
+
+            if (lastPanelX < currentPanelX)
+            {
+                nextIndex = currentBgUnit.IndexLeft;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexRight + (columnNumber - 3);
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.x += (lastPanelX < currentPanelX ? panelWidth * (columnNumber - 1) : -panelWidth * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.y += panelHeight;
+            _BackgroundUnitList[nextUnit.IndexUp].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.y -= panelHeight;
+            _BackgroundUnitList[nextUnit.IndexDown].MoveToPosition(pos);
+
+            
+            if (lastPanelX < currentPanelX)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexRight];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexLeft];
+            }
+            //얘 순서
+            lastPanelX = currentPanelX;
+        }
+
+        if (lastPanelY != currentPanelY)
+        {
+
+            int nextIndex = 0;
+
+            if (lastPanelY < currentPanelY)
+            {
+                nextIndex = currentBgUnit.IndexDown;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexUp;
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.y += (lastPanelY < currentPanelY ? panelHeight * 2 : -panelHeight * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.x += panelWidth;
+            _BackgroundUnitList[nextUnit.IndexRight].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.x -= panelWidth;
+            _BackgroundUnitList[nextUnit.IndexLeft].MoveToPosition(pos);
+
+            if (lastPanelY < currentPanelY)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexUp];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexDown];
+            }
+            lastPanelY = currentPanelY;
+        }
+
+    }
+
+    public void SetBackgroundUnitList(List<BackgroundUnit> backgroundUnitList)
+    {
+        _BackgroundUnitList = backgroundUnitList;
+    }
+
+
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+ 
+
+    
+}
+
+
+이제 캐릭터의 픽셀이 bg에서 직접 움직이게
+
+what i've tried
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AdaptivePerformance.Provider;
+
+public class CharBg : MonoBehaviour
+{
+    public Texture2D Chartexture;
+    public Texture2D BgTexture;
+    public SpriteRenderer SpriteRenderer;
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+      
+        Color[] pixels = Chartexture.GetPixels();
+
+        Texture2D newBgTexture = new Texture2D(BgTexture.width, BgTexture.height);
+        newBgTexture.SetPixels(BgTexture.GetPixels());
+
+        for (int x = 0; x < Chartexture.width; x++)
+        {
+            for (int y = 0; y < Chartexture.height; y++)
+            {
+                newBgTexture.SetPixel(x,  y, pixels[x + y * Chartexture.width]);
+            }
+        }
+        
+
+        newBgTexture.Apply();
+
+        SpriteRenderer.sprite = Sprite.Create(newBgTexture, new Rect(0, 0, newBgTexture.width, newBgTexture.height), new Vector2(0.5f, 0.5f));
+
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        
+    }
+}
+
+엄청 작게 나오고 왼쪽 끝에 char이 나오기는 하는데 주변 픽셀이 네모로 잘려있음
+--캐릭터 주변에 투명처리돼있는 픽셀들이 있어서 그랬음 char.a 가 0 이상인 경우만 setpixel 하게 했더니 해결
+캐릭터 움직이는 부분은 vector2 moveinput을 input 감지하게 해서 그대로 position에 더함.
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class CharBg : MonoBehaviour
+{
+    public Texture2D Chartexture;
+    public Texture2D BgTexture;
+    public SpriteRenderer SpriteRenderer;
+    private Vector2 moveInput;
+    private Vector2 charPosition;
+
+    void Start()
+    {
+        // Initialize the character's position at the center of the background
+        charPosition = new Vector2(BgTexture.width / 2, BgTexture.height  / 2);
+        UpdateTexture();
+        float scaleFactor = 60f; // Adjust this value as needed
+        SpriteRenderer.transform.localScale = new Vector3(scaleFactor, scaleFactor, 1);
+    }
+
+    void Update()
+    {
+        moveInput.x = Input.GetAxis("Horizontal");
+        moveInput.y = Input.GetAxis("Vertical");
+
+        // Update the character's position based on input
+        charPosition += moveInput;
+
+        // Ensure the character stays within the bounds of the background
+        charPosition.x = Mathf.Clamp(charPosition.x, 0, BgTexture.width - Chartexture.width);
+        charPosition.y = Mathf.Clamp(charPosition.y, 0, BgTexture.height - Chartexture.height);
+
+        // Update the combined texture
+        UpdateTexture();
+    }
+
+    void UpdateTexture()
+    {
+        // Get the pixels from both textures
+        Color[] bgPixels = BgTexture.GetPixels();
+        Color[] charPixels = Chartexture.GetPixels();
+
+        // Create a new texture with the same dimensions as the background
+        Texture2D newBgTexture = new Texture2D(BgTexture.width, BgTexture.height);
+        newBgTexture.SetPixels(bgPixels);
+
+        // Draw the character texture onto the background texture at the current position
+        int startX = Mathf.RoundToInt(charPosition.x);
+        int startY = Mathf.RoundToInt(charPosition.y);
+
+        for (int x = 0; x < Chartexture.width; x++)
+        {
+            for (int y = 0; y < Chartexture.height; y++)
+            {
+                Color charPixel = charPixels[x + y * Chartexture.width];
+                if (charPixel.a > 0) // Only set pixel if the character texture pixel is not transparent
+                {
+                    newBgTexture.SetPixel(startX + x, startY + y, charPixel);
+                }
+            }
+        }
+
+        // Apply changes to the new texture
+        newBgTexture.Apply();
+
+        // Update the sprite with the new texture
+        SpriteRenderer.sprite = Sprite.Create(newBgTexture, new Rect(0, 0, newBgTexture.width, newBgTexture.height), new Vector2(0.5f, 0.5f));
+    }
+}
+
+6.14
+조이스틱 커멘드 만들기 시작
+좌우로는 성공함. 유턴?은 아직
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Experimental.GlobalIllumination;
+
+public class FingerStick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+{
+    [SerializeField] private RectTransform _Trans_Frame = null;
+    [SerializeField] private RectTransform _Trans_Stick = null;
+
+    private Vector2 _StartPos = Vector2.zero;
+    private Vector2 _FarthestPos = Vector2.zero; // Store the farthest position
+    private List<Vector2> movementHistory = new List<Vector2>();
+    private bool isTracking = false;
+
+    private float totalTime = 0.0f;
+    private float maxTimeSkill = 0.5f;
+    private bool isFirstPress = true; // Track the first press
+    private float maxDistance = 0.0f; // Track the maximum distance
+
+    private float stepTime = 0.0f;
+    private Vector2 direction = Vector2.zero; // Direction of the joystick movement
+
+    private void Start()
+    {
+        _Trans_Frame.gameObject.SetActive(false);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        Vector2 pos = eventData.position;
+
+        pos.y = pos.y * 1440.0f / Screen.height;
+        pos.x = pos.x * 1440.0f / Screen.height;
+
+        _StartPos = pos;
+
+        _Trans_Stick.anchoredPosition = Vector2.zero;
+        _Trans_Frame.anchoredPosition = pos;
+        _Trans_Frame.gameObject.SetActive(true);
+
+        // Start tracking the movement
+        if (isFirstPress)
+        {
+            movementHistory.Clear();
+            isTracking = true;
+            totalTime = 0.0f;
+            isFirstPress = false;
+            pointList.Clear();
+            Debug.Log("Tracking started");
+
+            stepTime = 0.0f;
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _Trans_Frame.gameObject.SetActive(false);
+        direction = Vector2.zero; // Reset direction when finger is lifted
+        // Check if the movement history matches the skill activation pattern
+        if (IsLeftToRightMovement() && isTracking)
+        {
+            Debug.Log("Left to right Skill!");
+
+            // Stop tracking the movement
+            isTracking = false;
+            isFirstPress = true;
+            totalTime = 0.0f;
+            movementHistory.Clear();
+        }
+        else if (IsRighToLeftMovement() && isTracking)
+        {
+            Debug.Log("Right to Left Skill!");
+
+            // Stop tracking the movement
+            isTracking = false;
+            isFirstPress = true;
+            totalTime = 0.0f;
+            movementHistory.Clear();
+        }
+    }
+    List<Vector2> pointList = new();
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector2 pos = eventData.position;
+
+        pos.y = pos.y * 1440.0f / Screen.height;
+        pos.x = pos.x * 1440.0f / Screen.height;
+
+        Vector2 dir = pos - _StartPos;
+
+        if (dir.magnitude > 80.0f)
+        {
+            dir = dir.normalized * 80.0f;
+        }
+
+        _Trans_Stick.anchoredPosition = dir;
+        direction = dir; // Update direction based on drag
+
+        if (isTracking)
+        {
+            movementHistory.Add(dir);
+        }
+    }
+
+    public Vector2 GetDirection()
+    {
+        return direction;
+    }
+
+    private bool IsLeftToRightMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].x > movementHistory[movementHistory.Count - 1].x || movementHistory[0].x > 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool IsRighToLeftMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].x < movementHistory[movementHistory.Count - 1].x || movementHistory[0].x < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool UturnMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].y < -15)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ActivateSkill()
+    {
+        Debug.Log("Skill Activated!");
+        // Implement skill activation logic here
+    }
+
+    private void Update()
+    {
+        if (isTracking)
+        {
+            totalTime += Time.deltaTime;
+
+            stepTime += Time.deltaTime;
+            while (stepTime > 0.05f)
+            {
+                pointList.Add(_Trans_Stick.anchoredPosition);
+                stepTime -= 0.025f;
+            }
+
+            if (totalTime > maxTimeSkill)
+            {
+                movementHistory.Clear();
+                isTracking = false;
+                isFirstPress = true;
+                totalTime = 0.0f;
+                Debug.Log("Time exceeded maxTimeSkill, reset");
+
+                string log = "";
+                for (int i = 0; i < pointList.Count; ++i)
+                {
+                    log += $"{pointList[i].x}, {pointList[i].y}\n";
+                }
+            }
+        }
+    }
+}
+
+
+
+
+다시 해보니 3*3이 시작할때 currentBg를 못찾음
+generate 전에 받을려고 하는거같아서 update에 넣고 시작할때만 한번 받게만듦.
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class BgManager : MonoBehaviour
+{
+    [SerializeField] private List<BackgroundUnit> _BackgroundUnitList = null;
+
+    public GameObject[] bgs; // Assign the bg panels in the Inspector
+    public GameObject player; // Assign the player in the Inspector
+    public Camera mainCamera; // Assign the main camera in the Inspector
+
+    public int rowNumber ; // Set the number of rows
+    public int columnNumber ; // Set the number of columns
+
+    private int panelWidth = 10;
+    private int panelHeight = 10;
+    private int lastPanelX = 0;
+    private int lastPanelY = 0;
+
+    private BackgroundUnit currentBgUnit = null;
+    private bool isStart = true;
+
+    private void Start()
+    {
+        // Assign adjacent panels for each BackgroundUnit
+        //SetupAdjacentPanels();
+        lastPanelX = Mathf.FloorToInt(player.transform.position.x / panelWidth);
+        lastPanelY = Mathf.FloorToInt(player.transform.position.y / panelHeight);
+
+        //for (int i = 0; i < _BackgroundUnitList.Count; i++)
+        //{
+        //    _BackgroundUnitList[i].Init(i);
+        //}
+        
+
+    }
+
+    private void Update()
+    {
+        if(isStart == true)
+        {
+            currentBgUnit = _BackgroundUnitList[4];
+            isStart = false;
+        }
+        
+        Vector3 playerPos = player.transform.position;
+        MoveCamera(playerPos);
+
+        // Determine the current panel the user is in
+        int currentPanelX = Mathf.FloorToInt(playerPos.x / panelWidth);
+        int currentPanelY = Mathf.FloorToInt(playerPos.y / panelHeight);
+
+        if (lastPanelX != currentPanelX)
+        {
+            //Debug.Log(currentBgUnit);
+            int nextIndex = 0;
+
+            if (lastPanelX < currentPanelX)
+            {
+                nextIndex = currentBgUnit.IndexLeft;
+                //Debug.Log("nextIndex: " + nextIndex);
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexRight + (columnNumber - 3);
+                //Debug.Log("nextIndex: " + nextIndex);
+            }
+            
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.x += (lastPanelX < currentPanelX ? panelWidth * (columnNumber - 1) : -panelWidth * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.y += panelHeight;
+            _BackgroundUnitList[nextUnit.IndexUp].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.y -= panelHeight;
+            _BackgroundUnitList[nextUnit.IndexDown].MoveToPosition(pos);
+
+            
+            if (lastPanelX < currentPanelX)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexRight];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexLeft];
+            }
+            //얘 순서
+            lastPanelX = currentPanelX;
+        }
+
+        if (lastPanelY != currentPanelY)
+        {
+
+            int nextIndex = 0;
+
+            if (lastPanelY < currentPanelY)
+            {
+                nextIndex = currentBgUnit.IndexDown;
+            }
+            else
+            {
+                nextIndex = currentBgUnit.IndexUp;
+            }
+            //middle panel
+            Vector2 pos = currentBgUnit.Pos;
+
+            pos.y += (lastPanelY < currentPanelY ? panelHeight * 2 : -panelHeight * 2);
+
+            _BackgroundUnitList[nextIndex].MoveToPosition(pos);
+
+            var nextUnit = _BackgroundUnitList[nextIndex];
+
+            pos = nextUnit.Pos;
+            pos.x += panelWidth;
+            _BackgroundUnitList[nextUnit.IndexRight].MoveToPosition(pos);
+
+            pos = nextUnit.Pos;
+            pos.x -= panelWidth;
+            _BackgroundUnitList[nextUnit.IndexLeft].MoveToPosition(pos);
+
+            if (lastPanelY < currentPanelY)
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexUp];
+            }
+            else
+            {
+                currentBgUnit = _BackgroundUnitList[currentBgUnit.IndexDown];
+            }
+            lastPanelY = currentPanelY;
+        }
+
+    }
+
+    public void SetBackgroundUnitList(List<BackgroundUnit> backgroundUnitList)
+    {
+        _BackgroundUnitList = backgroundUnitList;
+    }
+
+
+    void MoveCamera(Vector3 playerPos)
+    {
+        mainCamera.transform.position = new Vector3(playerPos.x, playerPos.y, mainCamera.transform.position.z);
+    }
+
+ 
+
+    
+}
+
+
+조이스틱 복사해서 gamescence의 ui canvas에 붙여넣음. playercontroller에 연결하고 moveinput을 조이스틱으로 대체함. 엄청 빠름
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float moveSpeed;
+    public int health;
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+    public Collider2D coll;
+    public FingerStick fingerStick;
+
+    void Start()
+    {
+        // Initialize the player's Rigidbody2D component
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        // Get input from arrow keys or WASD keys
+        //moveInput.x = Input.GetAxis("Horizontal");
+        //moveInput.y = Input.GetAxis("Vertical");
+        if (fingerStick != null)
+        {
+            moveInput = fingerStick.GetDirection();
+        }
+
+
+
+
+        // If there is movement input, rotate the player to face the direction of movement
+        if (moveInput != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
+            rb.rotation = angle + 270;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Move the player
+        rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
+    }
+
+    // Detect trigger collision and reduce health by one if colliding with an enemy
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            // Reduce health by one
+            health -= 1;
+
+            // Optional: Check if health is zero or less and handle player death
+            if (health <= 0)
+            {
+                // Handle player death (e.g., disable the player, show game over screen)
+                Debug.Log("Player has died.");
+                // Example: Disable the player's movement
+                this.enabled = false;
+            }
+
+            // Log the collision and remaining health
+            Debug.Log("Collided with: " + other.gameObject.name + ". Health: " + health);
+        }
+    }
+}
+
+
+조이스틱에 더블탭 추가, activateskill player controller 에 연결해서 커맨드 입력시 애니메이션, 속도 증가
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.Experimental.GlobalIllumination;
+
+public class FingerStick : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IDragHandler
+{
+    [SerializeField] private RectTransform _Trans_Frame = null;
+    [SerializeField] private RectTransform _Trans_Stick = null;
+
+    private Vector2 _StartPos = Vector2.zero;
+    private Vector2 _FarthestPos = Vector2.zero; // Store the farthest position
+    private List<Vector2> movementHistory = new List<Vector2>();
+    private bool isTracking = false;
+
+    private float totalTime = 0.0f;
+    private float maxTimeSkill = 0.5f;
+    private bool isFirstPress = true; // Track the first press
+    private float maxDistance = 0.0f; // Track the maximum distance
+
+    private float stepTime = 0.0f;
+    private Vector2 direction = Vector2.zero; // Direction of the joystick movement
+
+    private void Start()
+    {
+        _Trans_Frame.gameObject.SetActive(false);
+    }
+
+    public void OnPointerDown(PointerEventData eventData)
+    {
+        Vector2 pos = eventData.position;
+
+        pos.y = pos.y * 1440.0f / Screen.height;
+        pos.x = pos.x * 1440.0f / Screen.height;
+
+        _StartPos = pos;
+
+        _Trans_Stick.anchoredPosition = Vector2.zero;
+        _Trans_Frame.anchoredPosition = pos;
+        _Trans_Frame.gameObject.SetActive(true);
+
+        // Start tracking the movement
+        if (isFirstPress)
+        {
+            movementHistory.Clear();
+            isTracking = true;
+            totalTime = 0.0f;
+            isFirstPress = false;
+            pointList.Clear();
+            Debug.Log("Tracking started");
+
+            stepTime = 0.0f;
+        }
+        movementHistory.Add(Vector2.zero);
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        _Trans_Frame.gameObject.SetActive(false);
+        direction = Vector2.zero; // Reset direction when finger is lifted
+        // Check if the movement history matches the skill activation pattern
+        if (IsLeftToRightMovement() && isTracking)
+        {
+            ActivateSkill();
+
+            // Stop tracking the movement
+            isTracking = false;
+            isFirstPress = true;
+            totalTime = 0.0f;
+            movementHistory.Clear();
+        }
+        else if (IsRighToLeftMovement() && isTracking)
+        {
+            Debug.Log("Right to Left Skill!");
+
+            // Stop tracking the movement
+            isTracking = false;
+            isFirstPress = true;
+            totalTime = 0.0f;
+            movementHistory.Clear();
+        }
+        else if (IsDoubleTabMovement() && isTracking)
+        {
+            ActivateSkill();
+
+            // Stop tracking the movement
+            isTracking = false;
+            isFirstPress = true;
+            totalTime = 0.0f;
+            movementHistory.Clear();
+        }
+    }
+    List<Vector2> pointList = new();
+    public void OnDrag(PointerEventData eventData)
+    {
+        Vector2 pos = eventData.position;
+
+        pos.y = pos.y * 1440.0f / Screen.height;
+        pos.x = pos.x * 1440.0f / Screen.height;
+
+        Vector2 dir = pos - _StartPos;
+
+        if (dir.magnitude > 80.0f)
+        {
+            dir = dir.normalized * 80.0f;
+        }
+
+        _Trans_Stick.anchoredPosition = dir;
+        direction = dir; // Update direction based on drag
+
+        if (isTracking)
+        {
+            movementHistory.Add(dir);
+        }
+    }
+
+    public Vector2 GetDirection()
+    {
+        return direction;
+    }
+
+    private bool IsLeftToRightMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].x > movementHistory[movementHistory.Count - 1].x || movementHistory[0].x > 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private bool IsRighToLeftMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].x < movementHistory[movementHistory.Count - 1].x || movementHistory[0].x < 0)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+
+    private bool IsDoubleTabMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].x != 0 || movementHistory[i].y != 0)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+    // not yet implemented
+    private bool UturnMovement()
+    {
+        if (movementHistory.Count < 2)
+            return false;
+
+        if (movementHistory[0].y < -15)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < movementHistory.Count; i++)
+        {
+            if (movementHistory[i].y > 40 || movementHistory[i].y < -40)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private void ActivateSkill()
+    {
+        Debug.Log("Skill Activated!");
+        PlayerController playerController = FindObjectOfType<PlayerController>();
+
+        playerController.activateDash();
+
+        // Implement skill activation logic here
+    }
+
+    private void Update()
+    {
+        if (isTracking)
+        {
+            totalTime += Time.deltaTime;
+
+            stepTime += Time.deltaTime;
+            while (stepTime > 0.05f)
+            {
+                pointList.Add(_Trans_Stick.anchoredPosition);
+                stepTime -= 0.025f;
+            }
+
+            if (totalTime > maxTimeSkill)
+            {
+                movementHistory.Clear();
+                isTracking = false;
+                isFirstPress = true;
+                totalTime = 0.0f;
+                Debug.Log("Time exceeded maxTimeSkill, reset");
+
+                string log = "";
+                for (int i = 0; i < pointList.Count; ++i)
+                {
+                    log += $"{pointList[i].x}, {pointList[i].y}\n";
+                }
+            }
+        }
+    }
+}
+ 
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float moveSpeed;
+    public int health;
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+    public Collider2D coll;
+    public FingerStick fingerStick;
+    private bool isDashing = false;
+
+    void Start()
+    {
+        // Initialize the player's Rigidbody2D component
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    void Update()
+    {
+        // Get input from arrow keys or WASD keys
+        //moveInput.x = Input.GetAxis("Horizontal");
+        //moveInput.y = Input.GetAxis("Vertical");
+        if (fingerStick != null)
+        {
+            moveInput = fingerStick.GetDirection();
+        }
+
+        // If there is movement input, rotate the player to face the direction of movement
+        if (moveInput != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
+            rb.rotation = angle + 270;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        // Move the player
+        rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
+    }
+
+    // Detect trigger collision and reduce health by one if colliding with an enemy
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            // Reduce health by one
+            health -= 1;
+
+            // Optional: Check if health is zero or less and handle player death
+            if (health <= 0)
+            {
+                // Handle player death (e.g., disable the player, show game over screen)
+                Debug.Log("Player has died.");
+                // Example: Disable the player's movement
+                this.enabled = false;
+            }
+
+            // Log the collision and remaining health
+            Debug.Log("Collided with: " + other.gameObject.name + ". Health: " + health);
+        }
+    }
+
+    public void activateDash()
+    {
+        if (!isDashing)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        isDashing = true;
+        float originalSpeed = moveSpeed;
+        moveSpeed *= 3; // Increase speed by a factor of 3
+
+        // Trigger dash animation
+        Animator anim = GetComponent<Animator>();
+        anim.SetTrigger("dash");
+
+        yield return new WaitForSeconds(1.5f); // Wait for 1.5 seconds
+
+        moveSpeed = originalSpeed; // Reset speed to original
+        isDashing = false;
+    }
+}
+

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "730516734245",
+    "project_id": "cosmicsurvival-4d8e2",
+    "storage_bucket": "cosmicsurvival-4d8e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:730516734245:android:5b50a52fc56f0f9d12dacc",
+        "android_client_info": {
+          "package_name": "com.naddic.cosmicsurvival"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDDrOSIycccbdrxagmzrFfImJZ-IkQ2vzI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

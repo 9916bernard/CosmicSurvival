@@ -1,0 +1,312 @@
+{
+  "BATTLE_START_MODE_MAIN": [
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43001
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43002
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43003
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43004
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43005
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43006
+    },
+    {
+      "TutorialType": 1,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43007
+    }
+  ],
+  "BATTLE_DROP_EXP": [
+    {
+      "TutorialType": 11,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43008
+    },
+    {
+      "TutorialType": 11,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43009
+    }
+  ],
+  "BATTLE_DROP_METAL": [
+    {
+      "TutorialType": 12,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43010
+    },
+    {
+      "TutorialType": 12,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43011
+    }
+  ],
+  "BATTLE_UPGRADE_UNIT": [
+    {
+      "TutorialType": 21,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43012
+    },
+    {
+      "TutorialType": 21,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43013
+    },
+    {
+      "TutorialType": 21,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43014
+    },
+    {
+      "TutorialType": 21,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43015
+    }
+  ],
+  "BATTLE_UPGRADE_BASE": [
+    {
+      "TutorialType": 22,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43016
+    },
+    {
+      "TutorialType": 22,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43017
+    },
+    {
+      "TutorialType": 22,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43018
+    },
+    {
+      "TutorialType": 22,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43019
+    }
+  ],
+  "BATTLE_DIE": [
+    {
+      "TutorialType": 31,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43020
+    }
+  ],
+  "BATTLE_MOVE_FAR": [
+    {
+      "TutorialType": 41,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43021
+    },
+    {
+      "TutorialType": 41,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43022
+    },
+    {
+      "TutorialType": 41,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43023
+    },
+    {
+      "TutorialType": 41,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43024
+    }
+  ],
+  "BATTLE_TIME_PASS": [
+    {
+      "TutorialType": 51,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43025
+    },
+    {
+      "TutorialType": 51,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43026
+    },
+    {
+      "TutorialType": 51,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43027
+    }
+  ],
+  "BATTLE_HIT": [
+    {
+      "TutorialType": 61,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43034
+    },
+    {
+      "TutorialType": 61,
+      "Position": {
+        "x": 0,
+        "y": 1
+      },
+      "Desc": 43035
+    },
+    {
+      "TutorialType": 61,
+      "Position": {
+        "x": 0,
+        "y": 2
+      },
+      "Desc": 43036
+    }
+  ],
+  "LOBBY_RANKING": [
+    {
+      "TutorialType": 102,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43028
+    },
+    {
+      "TutorialType": 102,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43029
+    }
+  ],
+  "LOBBY_UPGRADE": [
+    {
+      "TutorialType": 101,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43030
+    },
+    {
+      "TutorialType": 101,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43031
+    },
+    {
+      "TutorialType": 101,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43032
+    },
+    {
+      "TutorialType": 101,
+      "Position": {
+        "x": 0,
+        "y": 0
+      },
+      "Desc": 43033
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+7.8
+이번주 목표: 투두 끝내고, 몹 추가 
+다음주 목표: base 기능들 추가, 로비 기능 추가 로그인
+그 다음주 : 보스몹 추가, 패턴 추가 디버깅
+투두: 
+0. HP 바 고치기 OK
+3. 무기 5개까지만. OK
+2. 업그레이드 다 되서 없으면 골드나 hp 되게 오류 안나게 OK
+4. Weapon class 를 만들어서 LaserCannon:Weapon 461 했던것처럼 중복되는 properties 들은 공유하게. OK
+5. Ui_battle_upgrade에서 업그레이드 가능한것 determine하지말고 playerController에서 해서 전달. OK
+
+7.9
+3. player, weapon 같은거 만들어져야하는 위치의 class (field) 에다가 요청해서 만들어지게 하기 OK
+4. enemy reinforce 하는거 아예 Init에서 새로 해서 넘겨줘야함. OK
+5.enemy take damage battle field로 옮기기 OK
+6. 데미지 뜨게 하기. OK
+로켓 유도 검사. OK
+무기 업그레이드 한번씩 검사. (좀 더 명확한 업글로 최종 바꾸기) OK
+6. Gameover ui 지금 Battle upgrade에서 복사했는데 그거 고치기. OK
+7.10
+sprite 더 선명하게 OK
+3.Gameover ui 종료 하는법? OK
+lv 뜨게 하기 OK
+게임 종료: pool 삭제, OK 
+최종 업글 적용 부분 확인 OK
+
+7.11
+LifeDrain 고침 OK
+몹추가 OK
+Timer OK
+기지 이미지 바꾸기 OK
+애니메이션 이벤트 추가 OK
+터렛 추가 OK
+
+7.11
+weapon refactoring
+터렛 own stat으로 풀하게 바꾸기 OK
+Base 기능 추가 OK 다시
+고철 획득 ui 고치기 OK 다시
+
+
+무기 꽉차면 아예 안나옴.
+ rocket 고쳐야함 
+ 업글 안됨
+ 레이저 널뜸
+터렛 기능 꺼둠.
+
+ (sprite 바꿀 수 있으면 best) 최종레벨
+7. 소리 추가.
+기지에 고철, exp 획득 collider 달아주기
+기지 밑에 체력바처럼 고철 바 만들기
+기지 안에서는 속도 모두 느려지게 만들기
+유저가 기지 안에 있으면 터렛 능력치 상승하게 만들기
+ColliderShield 아직 안고침 
+
+
+
+질?문:
+2. collider drone projectile num 보기
+1. 소리 넣는거 다시 보기. 
+rotation speed 안늘어남.
+
+
+PlayerController
+	private Dictionary<int, Weapon> _dicWeapon = new();
+	
+	
+	AddWeapon(wid);
+	
+	
+
+
+
+
+전투
+	필드
+	백그라운드 (null)
+	베이스
+	플레이어
+
+
+battleManager
+	uiBattle
+		//battleManager.forceEnd (테스트 함수)
+		
+	battleUpgrade
+	battleGameOver
+		-> endAction
+
+uiMain
+	uiBattle
+
+
+
+
+

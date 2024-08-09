@@ -1,0 +1,10 @@
+{
+  "1001": {
+    "ID": 1001,
+    "Type": 1,
+    "Name": "Main Character",
+    "Health": 5,
+    "Speed": 0.0299999993,
+    "MaxHealth": 5
+  }
+}

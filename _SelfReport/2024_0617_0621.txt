@@ -1,0 +1,1689 @@
+6.17
+내 우주선, enemy sprites 변경
+pooling 많들었는데 unnecessary memory allocation을 막기 위해 list 형태에서 재활용 할 수 있게 변경
+
+아래 코드에서는 가끔씩 inactive 된 애를 건너뛰는 경우가 생겼음.
+using System.Collections.Generic;
+using UnityEngine;
+
+public class EnemyPool : MonoBehaviour
+{
+    public GameObject objectPrefab;
+    public int poolSize = 10;
+    private List<GameObject> pool;
+    private int indexPointer = 0;
+
+    private void Awake()
+    {
+        pool = new List<GameObject>();
+
+        for (int i = 0; i < poolSize; i++)
+        {
+            GameObject obj = Instantiate(objectPrefab, transform); // Set the parent to this GameObject
+            obj.SetActive(false);
+            pool.Add(obj);
+        }
+       
+    }
+
+    public GameObject GetPooledObject()
+    {
+        Debug.Log(indexPointer);
+        if (indexPointer >= poolSize-1)
+        {
+            // If no inactive objects are available, optionally expand the pool
+            GameObject newObj = Instantiate(objectPrefab, transform); // Set the parent to this GameObject
+            newObj.SetActive(false);
+            pool.Add(newObj);
+            poolSize += 1;
+            indexPointer++;
+            return newObj;
+        }
+        else 
+        {
+            while (pool[indexPointer] == null || pool[indexPointer].activeInHierarchy)
+            {
+
+                indexPointer++;
+            }
+            GameObject currentObject = pool[indexPointer];
+            indexPointer += 1;
+            return currentObject;
+        }
+      
+        
+        
+
+        
+        
+        
+
+        
+    }
+
+    public void ReturnPooledObject(GameObject obj)
+    {
+        obj.SetActive(false);
+        if(pool.IndexOf(obj) > 0)
+        {
+            indexPointer = pool.IndexOf(obj);
+        }
+      
+        
+    }
+}
+
+
+내일 와서 할것
+지금 smaple에 있는 format에 맞춰서 enemypool을 만들어볼려고 하는데
+일단 가져오는것까지는 됐고 여기에 필요한 애들을 보구해서 넣어보면 될듯.
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class Field : MonoBehaviour
+{
+    private ObjectPoolSimple<EnemyUnit> _Pool_Enemy = new();
+
+    public void Init()
+    {
+        _Pool_Enemy.Init(transform, EnemyUnit.MakeFactory, 5);
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+public class SceneGame : MonoBehaviour
+{
+    [SerializeField] private GameObject _Unit = null;
+    [SerializeField] private Image _Img = null;
+
+    [SerializeField] private Field _Field = null;
+
+    // Start is called before the first frame update
+    void Start()
+    {
+        _Unit.SetActive(true);
+
+        _Field.Init();
+
+        //Texture2D tex2d = _Img.mainTexture as Texture2D;
+
+        //for (int i = 0; i < tex2d.width; i++)
+        //{
+        //    for (int j = 0; j < tex2d.height; j++)
+        //    {
+        //        tex2d.SetPixel(i, j, Color.white);
+        //    }
+        //}
+
+        //tex2d.Apply();
+
+
+        //tex2d.EncodeToPNG();
+
+        //var dirPath = Application.dataPath + "/../SaveImages/";
+        //if (!Directory.Exists(dirPath))
+        //{
+        //    Directory.CreateDirectory(dirPath);
+        //}
+        //File.WriteAllBytes(dirPath + "Image" + ".png", bytes);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        // 테스트 주석
+    }
+
+
+    private List<int> _TestList = null;
+    public void OnClick_TestList()
+    {
+        if (_TestList == null)
+            _TestList = new(17);
+
+        _TestList.Add(1);
+
+        Debug.Log($"{_TestList.Count} : {_TestList.Capacity}");
+    }
+}
+
+
+using System.Collections;
+using Unity.VisualScripting;
+using UnityEditor.iOS;
+using UnityEngine;
+
+public class EnemyUnit : MonoBehaviour
+{
+    public GameObject player; // Reference to the player
+    public float speed = 5.0f; // Speed of the enemy
+    public int health = 2; // Health of the enemy
+    private EnemyPool enemyPool;
+    private Animator animator;
+    private bool isDestroyed = false;
+    public GameObject engineIdle;
+
+    void Start()
+    {
+        //enemyPool = FindObjectOfType<EnemyPool>();
+        //animator = GetComponent<Animator>();
+        
+    }
+
+    void Update()
+    {
+        //if (player != null && !isDestroyed)
+        //{
+        //    // Calculate direction from enemy to player
+        //    Vector3 direction = player.transform.position - transform.position;
+        //    direction.Normalize();
+
+        //    // Move enemy towards the player
+        //    transform.position += direction * speed * Time.deltaTime;
+
+        //    // Rotate the enemy to face the player
+        //    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        //    transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 270));
+        //}
+    }
+
+    // Method to reduce health
+    public void TakeDamage(int damage)
+    {
+        //health -= damage;
+        //if (health <= 0 && !isDestroyed)
+        //{
+        //    StartCoroutine(DestroyEnemy()); // Trigger the destruction sequence
+        //}
+    }
+
+    //private IEnumerator DestroyEnemy()
+    //{
+    //    engineIdle.active = false;
+    //    isDestroyed = true;
+        
+    //    animator.SetTrigger("DestroyTrigger"); // Trigger the destruction animation
+
+
+    //    //// Wait for the length of the animation
+    //    //AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+    //    ////float waitTime = stateInfo.length;
+    //    ////yield return new WaitForSeconds(waitTime);
+    //    //yield return new WaitForSeconds(2);
+
+    //    yield return new WaitForSeconds(0.1f);
+
+
+    //    AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+    //    float waitTime = stateInfo.length;
+    //    yield return new WaitForSeconds(waitTime);
+
+    //    gameObject.SetActive(false); // Deactivate the enemy
+
+    //    if (enemyPool != null)
+    //    {
+    //        enemyPool.ReturnPooledObject(gameObject);
+    //    }
+
+    //    // Reset variables for reuse
+    //    isDestroyed = false;
+    //    health = 2; // Reset health or set to your desired initial value
+    //    engineIdle.active = true;
+    //}
+
+
+    private ObjectPoolSimple<EnemyUnit> _Pool = null;
+
+    public void Init(ObjectPoolSimple<EnemyUnit> InPool)
+    {
+        _Pool = InPool;
+    }
+
+    //static public EnemyController MakeFactory(int InIndex, ObjectPool<int, EnemyController> InPool)
+    static public EnemyUnit MakeFactory(ObjectPoolSimple<EnemyUnit> InPool)
+    {
+        var _obj = Resources.Load("Enemy/EnemyUnit_001");
+        var _Enemy = Instantiate(_obj).GetComponent<EnemyUnit>();
+
+        _Enemy.Init(InPool);
+
+        return _Enemy;
+    }
+}
+
+여기 주석처리돼 있는 부분들.
+
+
+6.18
+Texture을 수정하고 나면 .Apply() 해줘야함
+계속 하던 방식은 Texture을 수정해서(setpixel) spriteRenderer로 sprite에 create 해서 적용하는 방식.
+
+.GetComponent<> 같은건 여러번 할때는 한번 하고 변수에 저장하고 사용하기. 
+
+
+[SerializeField] - private을 유니티 에디터에서 바꿀 수 있게 해줌.
+왠만하면 변수들은 private으로 설정하고 바꿔야하는 경우에 이걸 써주는게 좋음 (다른곳에서 써야하는게 아니면)
+
+더 상위 부모 클레스의 initialize같은걸 하지는 않음.
+----------------
+Pool:
+ObjectPool 이라는 만들어진 Pool format을 가지고 있다.
+이때 Pool로 만들 클레스가 ex) Bullet면
+
+부모 클레스 여기서는 Field에서 
+Private ObjectPool<Bullet> _bullet_pool = new(); 만들고   <= 얘를 Field에서 만들고 각 하위 클레스에서 받아쓰기때문에 Field에 생성
+Init()에서 _bullet_pool.Init(transform, Bullet.Factory,5) <= 얘는 ObjectPool의 Init이다.
+를 하면 Bullet 내의 MakeFactory 가 호출되고
+public static Bullet MakeFactory(ObjectPoolSimple<Bullet> pool)
+{
+    var _obj = Resources.Load("Bullet/BulletUnit_001");
+    var _Bullet = Instantiate(_obj).GetComponent<Bullet>(); 
+
+    _Bullet.SetPool(pool);
+
+    return _Bullet;
+}
+ 
+
+
+public void SetPool(ObjectPool<Bullet> pool)
+{
+	_pool = pool;      <= _pool에 field에서 instantiate한 objectpool<bullet> 이 들어감.
+}
+
+이러고 나면 _pool.push(this) 이런게 가능해짐 <= 여기서 deactivate 도 해줌.
+
+--------------------
+
+
+using System.Collections.Generic;
+using System;
+using UnityEngine;
+
+
+public class ObjectPoolSimple<T> where T : MonoBehaviour
+{
+    //class PoolUnit
+    //{
+    //    T unit = default(T);
+    //    float lasttiem
+    //}
+
+    private Transform _RootTrans = null;
+    private Func<ObjectPoolSimple<T>, T> _Factory = null;
+    private int _UseCount = 0;
+    private List<T> _ObjectList = new List<T>();
+
+    public void Init(Transform InRoot, Func<ObjectPoolSimple<T>, T> InFactory, int InPreMakeCount = 0)
+    {
+        _RootTrans = InRoot;
+        _Factory = InFactory;
+
+        for (int i = 0; i < InPreMakeCount; ++i)
+        {
+            T popType = _Factory.Invoke(this);
+
+            if (popType != null)
+            {
+                popType.gameObject.SetActive(false);
+                popType.gameObject.transform.SetParent(_RootTrans);
+                _ObjectList.Add(popType);
+            }
+        }
+    }
+
+    public T Pop()
+    {
+        T popType = null;
+
+        if (_UseCount == _ObjectList.Count)
+        {
+            popType = _Factory.Invoke(this);
+
+            if (popType == null)
+            {
+                return null;
+            }
+
+            popType.gameObject.transform.SetParent(_RootTrans);
+
+            _ObjectList.Add(popType);
+        }
+        else
+        {
+            popType = _ObjectList[_UseCount];
+        }
+
+        _UseCount++;
+
+        return popType;
+    }
+
+    public void Push(T InObj)
+    {
+        InObj.gameObject.SetActive(false);
+
+        _UseCount--;
+
+        if (_UseCount < 0)
+        {
+            _ObjectList.Add(InObj);
+
+            _UseCount++;
+        }
+        else
+        {
+            _ObjectList[_UseCount] = InObj;
+        }
+    }
+}
+
+
+public class ObjectPool<K, T> where T : MonoBehaviour
+{
+    private Transform _RootTrans = null;
+    private Func<K, ObjectPool<K, T>, T> _Factory = null;
+    private int _UseCount = 0;
+    private readonly List<T> _ObjectList = new();
+
+    public int UseCount { get { return _UseCount; } }
+
+    public void Init(Transform InRoot, Func<K, ObjectPool<K, T>, T> InFactory, int InPreMakeCount = 0)
+    {
+        _RootTrans = InRoot;
+        _Factory = InFactory;
+
+        for (int i = 0; i < InPreMakeCount; ++i)
+        {
+            T popType = _Factory.Invoke(default, this);
+
+            if (popType != null)
+            {
+                popType.gameObject.SetActive(false);
+                popType.gameObject.transform.SetParent(_RootTrans);
+                _ObjectList.Add(popType);
+            }
+        }
+    }
+
+    public T Pop(K InKey)
+    {
+        T popType = null;
+
+        if (_UseCount == _ObjectList.Count)
+        {
+            popType = _Factory.Invoke(InKey, this);
+
+            if (popType == null)
+            {
+                return null;
+            }
+
+            popType.gameObject.transform.SetParent(_RootTrans);
+            popType.gameObject.transform.localScale = Vector3.one;
+
+            _ObjectList.Add(popType);
+        }
+        else
+        {
+            popType = _ObjectList[_UseCount];
+        }
+
+        _UseCount++;
+
+        return popType;
+    }
+
+    public void Push(T InObj)
+    {
+        InObj.gameObject.SetActive(false);
+
+        _UseCount--;
+
+        if (_UseCount < 0)
+        {
+            _ObjectList.Add(InObj);
+
+            _UseCount++;
+        }
+        else
+        {
+            _ObjectList[_UseCount] = InObj;
+        }
+    }
+}
+
+public class ObjectDictionaryPool<K, T> where T : MonoBehaviour
+{
+    private Transform _RootTrans = null;
+    private Func<K, ObjectPool<K, T>, T> _Factory = null;
+    private readonly Dictionary<K, ObjectPool<K, T>> _PoolDic = new();
+
+    public void Init(Transform InRootTrans, Func<K, ObjectPool<K, T>, T> InFactory)
+    {
+        _RootTrans = InRootTrans;
+        _Factory = InFactory;
+    }
+
+    public T Pop(K InKey)
+    {
+        if (_PoolDic.TryGetValue(InKey, out ObjectPool<K, T> pool) == false)
+        {
+            pool = new();
+
+            pool.Init(_RootTrans, _Factory);
+
+            _PoolDic.Add(InKey, pool);
+        }
+
+        return pool.Pop(InKey);
+    }
+
+    public void Push(K InKey, T InObj)
+    {
+        if (_PoolDic.TryGetValue(InKey, out ObjectPool<K, T> pool) == false)
+        {
+            pool = new();
+
+            pool.Init(_RootTrans, _Factory);
+
+            _PoolDic.Add(InKey, pool);
+        }
+
+        pool.Push(InObj);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//[Serializable]
+//public class FiledObjectPoolUnitSimple<T> where T : MonoBehaviour
+//{
+//    private int _UseCount = 0;
+//    private readonly List<T> _ObjectList = new List<T>();
+
+//    private T MakeNew(Transform InRootTrans)
+//    {
+//        GameObject newObj = new GameObject();
+
+//        newObj.transform.parent = InRootTrans;
+
+//        T typeObj = newObj.AddComponent<T>();
+
+//        if (typeObj == null)
+//        {
+//            //Debug.Log("BaseObject not contain T Component");
+//            return null;
+//        }
+
+//        newObj.AddComponent<RectTransform>();
+
+//        return typeObj;
+//    }
+
+//    public T Pop(Transform InRootTrans)
+//    {
+//        if (_UseCount > _ObjectList.Count)
+//        {
+//            //Debug.Log("_ObjectList : Invalid _UseCount");
+//            return null;
+//        }
+
+//        T popType = null;
+
+//        if (_UseCount == _ObjectList.Count)
+//        {
+//            popType = MakeNew(InRootTrans);
+
+//            if (popType == null)
+//            {
+//                return null;
+//            }
+
+//            _ObjectList.Add(popType);
+//        }
+//        else
+//        {
+//            popType = _ObjectList[_UseCount];
+//        }
+
+//        _UseCount++;
+
+//        return popType;
+//    }
+
+//    public void Push(T InObj)
+//    {
+//        _UseCount--;
+
+//        if (_UseCount < 0)
+//        {
+//            _ObjectList.Add(InObj);
+
+//            _UseCount++;
+//        }
+//        else
+//        {
+//            _ObjectList[_UseCount] = InObj;
+//        }
+//    }
+//}
+
+//[Serializable]
+//public class FiledObjectPoolUnit<K, T> where T : MonoBehaviour
+//{
+//    [SerializeField]
+//    private K _Type;
+//    public K Type { get { return _Type; } }
+
+//    [SerializeField]
+//    private GameObject _BaseObject = null;
+//    public GameObject BaseObject { get { return _BaseObject; } }
+
+//    private int _UseCount = 0;
+//    private List<T> _ObjectList = new List<T>();
+
+//    private T MakeNew(Transform InRootTrans)
+//    {
+//        if (_BaseObject == null)
+//        {
+//            //Debug.Log("BaseObject is empty");
+//            return null;
+//        }
+
+//        GameObject newObj = GameObject.Instantiate(_BaseObject, InRootTrans);
+
+//        T typeObj = newObj.GetComponent<T>();
+
+//        if (typeObj == null)
+//        {
+//            //Debug.Log("BaseObject not contain T Component");
+//            return null;
+//        }
+
+//        return typeObj;
+//    }
+
+//    public T Pop(Transform InRootTrans)
+//    {
+//        if (_UseCount > _ObjectList.Count)
+//        {
+//            //Debug.Log("_ObjectList : Invalid _UseCount");
+//            return null;
+//        }
+
+//        T popType = null;
+
+//        if (_UseCount == _ObjectList.Count)
+//        {
+//            popType = MakeNew(InRootTrans);
+
+//            if (popType == null)
+//            {
+//                return null;
+//            }
+
+//            _ObjectList.Add(popType);
+//        }
+//        else
+//        {
+//            popType = _ObjectList[_UseCount];
+//        }
+
+//        _UseCount++;
+
+//        return popType;
+//    }
+
+//    public void Push(T InObj)
+//    {
+//        _UseCount--;
+
+//        if (_UseCount < 0)
+//        {
+//            _ObjectList.Add(InObj);
+
+//            _UseCount++;
+//        }
+//        else
+//        {
+//            _ObjectList[_UseCount] = InObj;
+//        }
+
+//        if (_BaseObject == null)
+//        {
+//            _BaseObject = InObj.gameObject;
+//        }
+//    }
+//}
+
+//[Serializable]
+//public class FieldObjectListPool<K, T> where T : MonoBehaviour
+//{
+//    [SerializeField]
+//    private List<FiledObjectPoolUnit<K, T>> _PoolList = null;
+
+//    private Transform _RootTrans = null;
+
+//    public bool Init(Transform InRootTrans)
+//    {
+//        _RootTrans = InRootTrans;
+
+//        int enumCount = Enum.GetValues(typeof(K)).Length;
+
+//        if (_PoolList.Count != enumCount)
+//        {
+//            //Debug.Log("PoolList Count not matched");
+//            return false;
+//        }
+
+//        for (int i = 0; i < _PoolList.Count; ++i)
+//        {
+//            if (_PoolList[i].BaseObject == null)
+//            {
+//                return false;
+//            }
+//        }
+
+//        return true;
+//    }
+
+//    public T Pop(K InKey)
+//    {
+//        int index = Convert.ToInt32(InKey);
+
+//        if (index < 0 || index >= _PoolList.Count)
+//        {
+//            //Debug.Log("PoolList Pop : Invalid Index");
+//            return null;
+//        }
+
+//        return _PoolList[index].Pop(_RootTrans);
+//    }
+
+//    public void Push(K InKey, T InObj)
+//    {
+//        int index = Convert.ToInt32(InKey);
+
+//        if (index < 0 || index >= _PoolList.Count)
+//        {
+//            //Debug.Log("PoolList Push : Invalid Index");
+//            return;
+//        }
+
+//        _PoolList[index].Push(InObj);
+//    }
+//}
+
+//[Serializable]
+//public class FieldObjectDictionaryPool<K, T> where T : MonoBehaviour
+//{
+//    private Dictionary<K, FiledObjectPoolUnit<K, T>> _PoolDic = new Dictionary<K, FiledObjectPoolUnit<K, T>>();
+
+//    private Transform _RootTrans = null;
+
+//    public bool Init(Transform InRootTrans)
+//    {
+//        _RootTrans = InRootTrans;
+
+//        return true;
+//    }
+
+//    public void SetParent(T InObj)
+//    {
+//        if (InObj.transform.parent != _RootTrans)
+//        {
+//            InObj.transform.parent = _RootTrans;
+//        }
+//    }
+
+//    public T Pop(K InKey)
+//    {
+//        FiledObjectPoolUnit<K, T> pool = null;
+
+//        if (_PoolDic.TryGetValue(InKey, out pool) == false)
+//        {
+//            pool = new FiledObjectPoolUnit<K, T>();
+
+//            _PoolDic.Add(InKey, pool);
+//        }
+
+//        return pool.Pop(_RootTrans);
+//    }
+
+//    public void Push(K InKey, T InObj)
+//    {
+//        FiledObjectPoolUnit<K, T> pool = null;
+
+//        if (_PoolDic.TryGetValue(InKey, out pool) == false)
+//        {
+//            pool = new FiledObjectPoolUnit<K, T>();
+
+//            _PoolDic.Add(InKey, pool);
+//        }
+
+//        SetParent(InObj);
+
+//        pool.Push(InObj);
+//    }
+//}
+
+//[Serializable]
+//public class FieldObjectDictionaryPoolSimple<K, T> where T : MonoBehaviour
+//{
+//    private Dictionary<K, FiledObjectPoolUnitSimple<T>> _PoolDic = new Dictionary<K, FiledObjectPoolUnitSimple<T>>();
+
+//    private Transform _RootTrans = null;
+
+//    public bool Init(Transform InRootTrans)
+//    {
+//        _RootTrans = InRootTrans;
+
+//        return true;
+//    }
+
+//    public T Pop(K InKey)
+//    {
+//        FiledObjectPoolUnitSimple<T> pool = null;
+
+//        if (_PoolDic.TryGetValue(InKey, out pool) == false)
+//        {
+//            pool = new FiledObjectPoolUnitSimple<T>();
+
+//            _PoolDic.Add(InKey, pool);
+//        }
+
+//        return pool.Pop(_RootTrans);
+//    }
+
+//    public void Push(K InKey, T InObj)
+//    {
+//        FiledObjectPoolUnitSimple<T> pool = null;
+
+//        if (_PoolDic.TryGetValue(InKey, out pool) == false)
+//        {
+//            pool = new FiledObjectPoolUnitSimple<T>();
+
+//            _PoolDic.Add(InKey, pool);
+//        }
+
+//        InObj.transform.SetParent(_RootTrans);
+
+//        pool.Push(InObj);
+//    }
+//}
+
+
+using System;
+using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
+
+public class EnemyUnit : MonoBehaviour
+{
+    [SerializeField] private GameObject engineIdle = null;
+    [SerializeField] private float speed = 2.0f;
+    [SerializeField] private int health = 2;
+    
+
+    private PlayerController _target;
+    private ObjectPoolSimple<EnemyUnit> _pool = null;
+    private Animator animator;
+    private bool isDestroyed = false;
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+    }
+
+    public void Init(PlayerController target)
+    {
+        gameObject.SetActive(true);
+
+        health = 2;
+        isDestroyed = false;
+        _target = target;
+        engineIdle.SetActive(true);
+    }
+
+    void Update()
+    {
+        if (_target != null && !isDestroyed)
+        {
+            Vector3 direction = _target.transform.position - transform.position;
+            direction.Normalize();
+            transform.position += direction * speed * Time.deltaTime;
+            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle + 270));
+        }
+    }
+
+    public void TakeDamage(int damage)
+    {
+        health -= damage;
+        if (health <= 0 && !isDestroyed)
+        {
+            StartCoroutine(DestroyEnemy());
+        }
+    }
+
+    private IEnumerator DestroyEnemy()
+    {
+        engineIdle.SetActive(false);
+        isDestroyed = true;
+        animator.SetTrigger("DestroyTrigger");
+        AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float waitTime = stateInfo.length;
+        yield return new WaitForSeconds(waitTime - 0.3f);
+        DropExperience();
+        _pool.Push(this);
+    }
+
+    private void DropExperience()
+    {
+        ExpSpawner expSpawner = FindObjectOfType<ExpSpawner>();
+        expSpawner.SpawnExp(transform.position);
+    }
+
+    public void SetPool(ObjectPoolSimple<EnemyUnit> pool)
+    {
+        _pool = pool;
+    }
+
+    public static EnemyUnit MakeFactory(ObjectPoolSimple<EnemyUnit> InPool)
+    {
+        var _Enemy = Instantiate(Resources.Load("Enemy/EnemyUnit_001")).GetComponent<EnemyUnit>();
+        _Enemy.SetPool(InPool);
+        return _Enemy;
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+
+public class Bullet : MonoBehaviour
+{
+    [SerializeField] private float speed = 10f;
+    [SerializeField] private int damage = 1;
+    [SerializeField] private int hitCount = 1;
+    [SerializeField] private float lifeTime = 5.0f;
+
+    private int currentHitCount = 0;
+
+    private float currentLifeTime = 5.0f;
+
+    private Rigidbody2D rb;
+
+    private ObjectPoolSimple<Bullet> _pool = null;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+    }
+
+    public void Init()
+    {
+        gameObject.SetActive(true);
+
+        currentHitCount = 0;
+        currentLifeTime = lifeTime;
+    }
+
+    void Update()
+    {
+        rb.velocity = transform.up * speed;
+
+        currentLifeTime -= Time.deltaTime;
+
+        if (currentLifeTime <= 0)
+        {
+            if (_pool != null)
+                _pool.Push(this);
+        }
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            currentHitCount += 1;
+
+            var enemy = other.GetComponent<EnemyUnit>();
+
+            // Reduce the enemy's health
+            if (enemy != null)
+            {
+                enemy.TakeDamage(damage);
+            }
+
+            if (currentHitCount >= hitCount)
+            {
+                if (_pool != null)
+                    _pool.Push(this);
+            }
+        }
+    }
+
+    public void SetPool(ObjectPoolSimple<Bullet> pool)
+    {
+        _pool = pool;
+    }
+
+    public static Bullet MakeFactory(ObjectPoolSimple<Bullet> pool)
+    {
+        var _obj = Resources.Load("Bullet/BulletUnit_001");
+        var _Bullet = Instantiate(_obj).GetComponent<Bullet>();
+
+        _Bullet.SetPool(pool);
+
+        return _Bullet;
+    }
+}
+
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Field : MonoBehaviour
+{
+    [SerializeField] private PlayerController _Player = null;
+
+    private ObjectPoolSimple<EnemyUnit> _Pool_Enemy = new();
+    private ObjectPoolSimple<Bullet> _Pool_Bullet = new();
+    private ObjectPoolSimple<Exp> _Pool_Exp = new();
+
+    public void Init()
+    {
+        _Pool_Enemy.Init(transform, EnemyUnit.MakeFactory, 0);
+        _Pool_Bullet.Init(transform, Bullet.MakeFactory, 0); // Initial bullet pool size can be adjusted
+        _Pool_Exp.Init(transform, Exp.MakeFactory, 0);
+    }
+
+    public EnemyUnit GetPooledEnemy()
+    {
+        var enemy = _Pool_Enemy.Pop();
+        enemy.Init(_Player);
+        return enemy;
+    }
+
+    public Exp GetPooledExp()
+    {
+        var exp = _Pool_Exp.Pop();
+        exp.Init();
+        return exp;
+    }
+
+    //public void ReturnPooledEnemy(EnemyUnit enemy)
+    //{
+    //    _Pool_Enemy.Push(enemy);
+    //}
+
+    public Bullet GetPooledBullet()
+    {
+        var bullet = _Pool_Bullet.Pop();
+        bullet.Init();
+        return bullet;
+    }
+
+    //public void ReturnPooledBullet(Bullet bullet)
+    //{
+    //    _Pool_Bullet.Push(bullet);
+    //}
+}
+
+pooling을 마치고 나서는 경험치 기능 추가
+using System.Collections;
+using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
+using static UnityEngine.GraphicsBuffer;
+
+public class Exp : MonoBehaviour
+{
+    private ObjectPoolSimple<Exp> _pool = null;
+    private int expValue = 1; // Value of the experience orb
+
+    public void Init()
+    {
+        gameObject.SetActive(true);
+        expValue = 1;
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            PlayerController player = other.GetComponent<PlayerController>();
+            if (player != null)
+            {
+                player.GainExperience(expValue);
+                _pool.Push(this);
+            }
+        }
+    }
+
+    public void SetPool(ObjectPoolSimple<Exp> pool)
+    {
+        _pool = pool;
+    }
+
+    public static Exp MakeFactory(ObjectPoolSimple<Exp> Pool)
+    {
+        var _Exp = Instantiate(Resources.Load("Exp/exp")).GetComponent<Exp>();
+        _Exp.SetPool(Pool);
+        return _Exp;
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    public float moveSpeed;
+    public int health;
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+    public Collider2D coll;
+    public FingerStick fingerStick;
+    private bool isDashing = false;
+    private bool isFingerStickEnabled = true;
+
+    // Experience properties
+    private int experience = 0;
+    private int expToLevelUp = 5;
+    public ExpBar expBar; // Reference to the ExpBar
+    public LevelUpCanvas levelUpCanvas; // Reference to the LevelUpCanvas
+
+    // New GameObjects for different states
+    public GameObject baseEngineIdle;
+    public GameObject baseEngineBoost;
+
+    // Bullet prefab and spawn points
+    public GameObject bulletPrefab;
+    public Transform leftWingSpawn;
+    public Transform rightWingSpawn;
+    public float fireRate = 0.5f;
+    private float nextFire = 0f;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        baseEngineIdle.SetActive(true);
+        baseEngineBoost.SetActive(false);
+        bulletPrefab.SetActive(true);
+
+        expBar.SetMaxExperience(expToLevelUp); // Initialize the experience bar
+
+        // Set the player controller reference in the LevelUpCanvas
+        if (levelUpCanvas != null)
+        {
+            levelUpCanvas.SetPlayerController(this);
+        }
+    }
+
+    void Update()
+    {
+        if (isFingerStickEnabled && fingerStick != null)
+        {
+            moveInput = fingerStick.GetDirection();
+        }
+
+        if (moveInput != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
+            rb.rotation = angle + 270;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (isFingerStickEnabled)
+        {
+            rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
+        }
+    }
+
+    void FireBullets()
+    {
+        GameObject leftBullet = Instantiate(bulletPrefab, leftWingSpawn.position, leftWingSpawn.rotation);
+        GameObject rightBullet = Instantiate(bulletPrefab, rightWingSpawn.position, rightWingSpawn.rotation);
+        leftBullet.transform.up = transform.up;
+        rightBullet.transform.up = transform.up;
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            health -= 1;
+            if (health <= 0)
+            {
+                Debug.Log("Player has died.");
+                this.enabled = false;
+            }
+        }
+    }
+
+    public void activateDash()
+    {
+        if (!isDashing)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        isDashing = true;
+        float originalSpeed = moveSpeed;
+        moveSpeed *= 2;
+        baseEngineIdle.SetActive(false);
+        baseEngineBoost.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        moveSpeed = originalSpeed;
+        isDashing = false;
+        baseEngineIdle.SetActive(true);
+        baseEngineBoost.SetActive(false);
+    }
+
+    public void GainExperience(int amount)
+    {
+        experience += amount;
+        expBar.SetExperience(experience); // Update the experience bar
+
+        if (experience >= expToLevelUp)
+        {
+            experience -= expToLevelUp;
+            LevelUp();
+        }
+    }
+
+    private void LevelUp()
+    {
+        Debug.Log("Level Up!");
+        expToLevelUp += 5;
+        expBar.SetMaxExperience(expToLevelUp); // Update the max experience needed for the next level
+        expBar.SetExperience(experience); // Update the experience bar with the current experience
+
+        if (levelUpCanvas != null)
+        {
+            levelUpCanvas.ShowCanvas();
+        }
+    }
+
+    public void DisableFingerStick()
+    {
+        fingerStick.StopCoroutine("MoveStick");
+    }
+
+    public void EnableFingerStick()
+    {
+        fingerStick.StartCoroutine("MoveStick");
+    }
+}
+using UnityEngine;
+using UnityEngine.UI;
+
+public class ExpBar : MonoBehaviour
+{
+    public Slider expSlider;
+
+    public void SetMaxExperience(int experience)
+    {
+        expSlider.maxValue = experience;
+        expSlider.value = 0;
+    }
+
+    public void SetExperience(int experience)
+    {
+        expSlider.value = experience;
+    }
+}
+
+
+경험치 기능과 경험치 바는 정상작동하지만 레벨업 스텟 올리는 levelup canvas는 fingerstick 이 사라지지 않는 문제로 상호작용이 불가.
+
+6/19
+
+데미지 ui, hp ui, 레벨업 스텟 올리기, 레벨업 ui, 적들 시간따라 스텟 올리기, navigation arrow, 배경 바꾸기, 빌드, enemy carrier 등 추가
+
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class DamageUi : MonoBehaviour
+{
+    private RectTransform rect;
+
+    // Start is called before the first frame update
+    private void Start()
+    {
+        rect = GetComponent<RectTransform>();
+    }
+
+    // Method to show the UI for 0.2 seconds
+    public void ShowDamageUI()
+    {
+        StartCoroutine(ShowDamageUICoroutine());
+    }
+
+    private IEnumerator ShowDamageUICoroutine()
+    {
+        rect.localScale = Vector3.one;
+        yield return new WaitForSeconds(0.5f);
+        rect.localScale = Vector3.zero;
+    }
+}
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class Upgrade : MonoBehaviour
+{
+    [SerializeField] private PlayerController playerController;
+    [SerializeField] private Bullet bullet;
+
+    public enum UpgradeType
+    {
+        Damage,
+        MovementSpeed,
+        BulletPenetration,
+        FireRate,
+        RestoreHealth,
+        MaxHealth
+    }
+
+    public UpgradeType upgradeType;
+
+    public void OnClick()
+    {
+        LevelUp levelUp = GetComponentInParent<LevelUp>(); // Get LevelUp from the parent or the root
+        if (levelUp != null)
+        {
+            switch (upgradeType)
+            {
+                case UpgradeType.Damage:
+                    Debug.Log("Damage increased!");
+                    bullet.damage += 1;
+                    break;
+                case UpgradeType.MovementSpeed:
+                    Debug.Log("Movement speed increased!");
+                    playerController.moveSpeed += 0.01f;
+                    break;
+                case UpgradeType.BulletPenetration:
+                    Debug.Log("Bullet penetration increased!");
+                    bullet.hitCount += 1;
+                    break;
+                case UpgradeType.FireRate:
+                    Debug.Log("Fire rate increased!");
+                    playerController.fireRate -= 0.05f; // Assuming lower fire rate means faster shooting
+                    break;
+                case UpgradeType.RestoreHealth:
+                    Debug.Log("Health restored!");
+                    playerController.health = Mathf.Min(playerController.health + 1, playerController.maxHealth);
+                    break;
+                case UpgradeType.MaxHealth:
+                    Debug.Log("Max health increased!");
+                    playerController.maxHealth += 1;
+                    
+                    break;
+                default:
+                    Debug.LogWarning("Unknown upgrade type.");
+                    break;
+            }
+            levelUp.Hide();
+        }
+        else
+        {
+            Debug.LogWarning("LevelUp component not found in parent or ancestors.");
+        }
+    }
+}
+using System.Collections;
+using UnityEngine;
+
+public class PlayerController : MonoBehaviour
+{
+    
+    private Rigidbody2D rb;
+    private Vector2 moveInput;
+    public Collider2D coll;
+    public FingerStick fingerStick;
+    private bool isDashing = false;
+    private bool isFingerStickEnabled = true;
+
+    // Experience properties
+    private int experience = 0;
+    private int expToLevelUp = 1;
+    public ExpBar expBar; // Reference to the ExpBar
+    public LevelUp levelUpUi; // Reference to the LevelUpCanvas
+
+    // New GameObjects for different states
+    public GameObject baseEngineIdle;
+    public GameObject baseEngineBoost;
+    
+    public GameOver gameOver;
+    public DamageUi DamageUi;
+
+    // Bullet prefab and spawn points
+    public GameObject bulletPrefab;
+    public Transform leftWingSpawn;
+    public Transform rightWingSpawn;
+   
+    private float nextFire = 0f;
+
+    public float moveSpeed;
+    public int health;
+    public float fireRate = 0.5f;
+    public int maxHealth;
+
+    void Start()
+    {
+        rb = GetComponent<Rigidbody2D>();
+        baseEngineIdle.SetActive(true);
+        baseEngineBoost.SetActive(false);
+        bulletPrefab.SetActive(true);
+
+        expBar.SetMaxExperience(expToLevelUp); // Initialize the experience bar
+
+        
+    }
+
+    void Update()
+    {
+        if (isFingerStickEnabled && fingerStick != null)
+        {
+            moveInput = fingerStick.GetDirection();
+        }
+
+        if (moveInput != Vector2.zero)
+        {
+            float angle = Mathf.Atan2(moveInput.y, moveInput.x) * Mathf.Rad2Deg;
+            rb.rotation = angle + 270;
+        }
+    }
+
+    void FixedUpdate()
+    {
+        if (isFingerStickEnabled)
+        {
+            rb.MovePosition(rb.position + moveInput * moveSpeed * Time.fixedDeltaTime);
+        }
+    }
+
+    void FireBullets()
+    {
+        GameObject leftBullet = Instantiate(bulletPrefab, leftWingSpawn.position, leftWingSpawn.rotation);
+        GameObject rightBullet = Instantiate(bulletPrefab, rightWingSpawn.position, rightWingSpawn.rotation);
+        leftBullet.transform.up = transform.up;
+        rightBullet.transform.up = transform.up;
+    }
+
+    void OnTriggerEnter2D(Collider2D other)
+    {
+        if (other.CompareTag("Enemy"))
+        {
+            health -= 1;
+            DamageUi.ShowDamageUI();
+            
+
+            if (health <= 0)
+            {
+                gameOver.Show();
+
+                this.enabled = false;
+            }
+
+          StartCoroutine(Invincible());
+
+        }
+    }
+
+    private IEnumerator Invincible()
+    {
+        coll.enabled = false;
+        yield return new WaitForSeconds(0.5f);
+        coll.enabled = true;
+    }
+
+    public void activateDash()
+    {
+        if (!isDashing)
+        {
+            StartCoroutine(DashCoroutine());
+        }
+    }
+
+    private IEnumerator DashCoroutine()
+    {
+        isDashing = true;
+        float originalSpeed = moveSpeed;
+        moveSpeed *= 2;
+        baseEngineIdle.SetActive(false);
+        baseEngineBoost.SetActive(true);
+        yield return new WaitForSeconds(1.5f);
+        moveSpeed = originalSpeed;
+        isDashing = false;
+        baseEngineIdle.SetActive(true);
+        baseEngineBoost.SetActive(false);
+    }
+
+    public void GainExperience(int amount)
+    {
+        experience += amount;
+        expBar.SetExperience(experience); // Update the experience bar
+
+        if (experience >= expToLevelUp)
+        {
+            experience -= expToLevelUp;
+            LevelUp();
+        }
+    }
+
+    private void LevelUp()
+    {
+        Debug.Log("Level Up!");
+        expToLevelUp += 1;
+        expBar.SetMaxExperience(expToLevelUp); // Update the max experience needed for the next level
+        expBar.SetExperience(experience); // Update the experience bar with the current experience
+
+        if (levelUpUi != null)
+        {
+            levelUpUi.Show();
+        }
+    }
+
+    
+}
+using UnityEngine;
+using UnityEngine.UI;
+
+public class NavigationArrow : MonoBehaviour
+{
+    public Transform target; // The target (AllyCarrier) to point to
+    public RectTransform arrowRectTransform; // The RectTransform of the arrow image
+    public Camera mainCamera; // The main camera
+    public Canvas canvas; // The canvas
+    public PlayerController playerController; // The player controller
+
+    void Update()
+    {
+        Vector3 screenPosition = mainCamera.WorldToScreenPoint(target.position);
+        
+
+        //if (screenPosition.z > 0 && IsTargetVisible()) // Ensure the target is in front of the camera and visible
+        //{
+        //    arrowRectTransform.gameObject.SetActive(false); // Hide the arrow if the target is visible
+        //    Debug.Log("Target is visible"); 
+        //}
+        //else
+        //{
+           
+            arrowRectTransform.gameObject.SetActive(true);
+
+            if (screenPosition.z > 0) // Ensure the target is in front of the camera
+            {
+                // Convert screen position to canvas position
+                Vector2 canvasPosition;
+                RectTransformUtility.ScreenPointToLocalPointInRectangle(canvas.transform as RectTransform, screenPosition, canvas.worldCamera, out canvasPosition);
+
+                // Clamp the position to the edge of the screen
+                Vector2 clampedPosition = ClampToScreenEdges(canvasPosition);
+
+                // Update arrow position
+                arrowRectTransform.anchoredPosition = clampedPosition;
+
+                // Rotate the arrow to point towards the target
+                Vector3 worldCanvasPos = mainCamera.ScreenToWorldPoint(new Vector3(clampedPosition.x, clampedPosition.y, screenPosition.z));
+                Vector2 direction = (Vector2)target.position - (Vector2)worldCanvasPos;
+                float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+                arrowRectTransform.rotation = Quaternion.Euler(new Vector3(0, 0, angle));
+            }
+            else
+            {
+                // Hide the arrow if the target is behind the camera
+                arrowRectTransform.gameObject.SetActive(false);
+            }
+        //}
+    }
+    
+    private bool IsTargetVisible()
+    {
+        Vector2 distance = target.position - playerController.transform.position;
+       Debug.Log(distance.x);
+        return distance.x < 8 && distance.y < 10;
+    }
+
+    Vector2 ClampToScreenEdges(Vector2 position)
+    {
+        float screenWidth = canvas.GetComponent<RectTransform>().rect.width;
+        float screenHeight = canvas.GetComponent<RectTransform>().rect.height;
+
+        float x = Mathf.Clamp(position.x, -screenWidth / 2 + arrowRectTransform.rect.width / 2, screenWidth / 2 - arrowRectTransform.rect.width / 2);
+        float y = Mathf.Clamp(position.y, -screenHeight / 2 + arrowRectTransform.rect.height / 2, screenHeight / 2 - arrowRectTransform.rect.height / 2);
+
+        return new Vector2(x, y);
+    }
+}
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+
+public class AllyCarrier : MonoBehaviour
+{
+    [SerializeField] private Transform laserStartPoint; // Starting point of the laser
+    [SerializeField] private GameObject laserPrefab; // Prefab for the laser sprite
+    [SerializeField] private float fireRate = 1f; // Fire rate in seconds
+    [SerializeField] private int laserDamage = 3; // Damage dealt by the laser
+
+    private List<GameObject> enemiesInRange = new List<GameObject>();
+    private float nextFireTime = 0f;
+
+
+    void Update()
+    {
+        if (enemiesInRange.Count > 0 && Time.time >= nextFireTime)
+        {
+            FireLaser();
+            nextFireTime = Time.time + fireRate;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Enemy"))
+        {
+            if (!enemiesInRange.Contains(collision.gameObject))
+            {
+                enemiesInRange.Add(collision.gameObject);
+            }
+        }
+    }
+
+  
+    private void FireLaser()
+    {
+      
+        if (enemiesInRange.Count > 0)
+        {
+
+            Debug.Log(enemiesInRange);
+            GameObject targetEnemy = enemiesInRange[0];
+            if (targetEnemy != null)
+            {
+                StartCoroutine(LaserRoutine(targetEnemy.transform));
+            }
+            enemiesInRange.RemoveAt(0);
+        }
+    }
+
+    private IEnumerator LaserRoutine(Transform target)
+    {
+        // Instantiate the laser sprite
+        GameObject laser = Instantiate(laserPrefab, laserStartPoint.position, Quaternion.identity);
+        Vector3 direction = (target.position - laserStartPoint.position).normalized;
+        float distance = Vector3.Distance(laserStartPoint.position, target.position);
+
+        // Set the laser sprite to stretch from the start point to the target
+        laser.transform.position = laserStartPoint.position + direction * distance / 2; // Position the laser halfway
+        laser.transform.right = direction; // Rotate the laser to point towards the target
+        laser.transform.localScale = new Vector3(distance * 2, laser.transform.localScale.y, laser.transform.localScale.z); // Stretch the laser
+
+        // Damage the enemy
+        EnemyUnit enemyUnit = target.GetComponent<EnemyUnit>();
+        if (enemyUnit != null)
+        {
+            enemyUnit.TakeDamage(laserDamage);
+        }
+
+        yield return new WaitForSeconds(0.5f); // Laser stays for 0.5 seconds
+
+        // Destroy the laser sprite
+        Destroy(laser);
+    }
+
+}
+레이저 쏘기중인데 레이저 rotation이 이상함, bullet 스텟 올리면 prefab에서 올라감 영구적용됨 - playercontroller에서 바꾸게 해보기.
+
+
+6/21
+배우는것들 unity txt file로 해서 github에 추가. 테이블 배움.
+sample project로 옮기기 시작.

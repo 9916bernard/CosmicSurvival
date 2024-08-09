@@ -1,0 +1,69 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{E767928F-67E8-4222-8163-92579BA41E45}|Table\\Table.csproj|c:\\users\\naddic\\documents\\github\\vslike\\sampleproject\\exporter\\table\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{E767928F-67E8-4222-8163-92579BA41E45}|Table\\Table.csproj|solutionrelative:table\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9019B648-BE25-4FEC-846A-4F864F65A1C6}|PacketCodeMaker\\PacketCodeMaker.csproj|c:\\users\\naddic\\documents\\github\\vslike\\sampleproject\\exporter\\packetcodemaker\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{9019B648-BE25-4FEC-846A-4F864F65A1C6}|PacketCodeMaker\\PacketCodeMaker.csproj|solutionrelative:packetcodemaker\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9019B648-BE25-4FEC-846A-4F864F65A1C6}|PacketCodeMaker\\PacketCodeMaker.csproj|C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\packetcodemaker\\mainpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{9019B648-BE25-4FEC-846A-4F864F65A1C6}|PacketCodeMaker\\PacketCodeMaker.csproj|solutionrelative:packetcodemaker\\mainpanel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\Table\\Program.cs",
+              "RelativeDocumentMoniker": "Table\\Program.cs",
+              "ToolTip": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\Table\\Program.cs",
+              "RelativeToolTip": "Table\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-21T07:36:02.378Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\PacketCodeMaker\\Program.cs",
+              "RelativeDocumentMoniker": "PacketCodeMaker\\Program.cs",
+              "ToolTip": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\PacketCodeMaker\\Program.cs",
+              "RelativeToolTip": "PacketCodeMaker\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAMAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T09:21:04.586Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "MainPanel.cs [\uB514\uC790\uC778]",
+              "DocumentMoniker": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\PacketCodeMaker\\MainPanel.cs",
+              "RelativeDocumentMoniker": "PacketCodeMaker\\MainPanel.cs",
+              "ToolTip": "C:\\Users\\naddic\\Documents\\GitHub\\VSLike\\SampleProject\\Exporter\\PacketCodeMaker\\MainPanel.cs [\uB514\uC790\uC778]",
+              "RelativeToolTip": "PacketCodeMaker\\MainPanel.cs [\uB514\uC790\uC778]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-06-20T09:20:59.828Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

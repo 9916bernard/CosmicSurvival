@@ -1,0 +1,106 @@
+{
+  "1000": {
+    "ID": 1000,
+    "UpgradeType": 1000,
+    "Name": "1000",
+    "Order": 1,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 20
+  },
+  "1001": {
+    "ID": 1001,
+    "UpgradeType": 1001,
+    "Name": "1001",
+    "Order": 2,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 10
+  },
+  "1002": {
+    "ID": 1002,
+    "UpgradeType": 1002,
+    "Name": "1002",
+    "Order": 3,
+    "UpgradeAmount": 0.00499999989,
+    "UpgradeCost": 10
+  },
+  "1003": {
+    "ID": 1003,
+    "UpgradeType": 1003,
+    "Name": "1003",
+    "Order": 4,
+    "UpgradeAmount": -0.100000001,
+    "UpgradeCost": 20
+  },
+  "1004": {
+    "ID": 1004,
+    "UpgradeType": 1004,
+    "Name": "1004",
+    "Order": 5,
+    "UpgradeAmount": 0.100000001,
+    "UpgradeCost": 5
+  },
+  "1005": {
+    "ID": 1005,
+    "UpgradeType": 1005,
+    "Name": "1005",
+    "Order": 6,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 50
+  },
+  "1006": {
+    "ID": 1006,
+    "UpgradeType": 1006,
+    "Name": "1006",
+    "Order": 7,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 50
+  },
+  "1007": {
+    "ID": 1007,
+    "UpgradeType": 1007,
+    "Name": "1007",
+    "Order": 8,
+    "UpgradeAmount": 0.100000001,
+    "UpgradeCost": 10
+  },
+  "2000": {
+    "ID": 2000,
+    "UpgradeType": 2000,
+    "Name": "2000",
+    "Order": 9,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 20
+  },
+  "2001": {
+    "ID": 2001,
+    "UpgradeType": 2001,
+    "Name": "2001",
+    "Order": 10,
+    "UpgradeAmount": -0.100000001,
+    "UpgradeCost": 10
+  },
+  "2002": {
+    "ID": 2002,
+    "UpgradeType": 2002,
+    "Name": "2002",
+    "Order": 11,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 30
+  },
+  "2003": {
+    "ID": 2003,
+    "UpgradeType": 2003,
+    "Name": "2003",
+    "Order": 12,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 50
+  },
+  "2004": {
+    "ID": 2004,
+    "UpgradeType": 2004,
+    "Name": "2004",
+    "Order": 13,
+    "UpgradeAmount": 1,
+    "UpgradeCost": 15
+  }
+}

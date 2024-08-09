@@ -1,0 +1,185 @@
+0729
+
+버그: 2칸 이상 이동한 상태에서 죽으면 그쪽으로 치우쳐짐  = 진짜 오는걸로 바꿈 OK
+Stay 무기들 버그있는거 고치기 OK
+배경 바꾸기 OK
+BattleField 위치 00 으로 고치기 OK
+Build OK => firebase 관련된게 자동으로 gradle에 추가가 안돼서 그런거였음. resolve 한번씩 눌러주기.OK
+upgrade cost 안나오는거 settext에 .tostring 안해서 그럼
+초반 스폰 떨어뜨리기. OK
+
+
+0730
+로그인 유지되게 만들기 OK
+언제 저장되어야하나 - 
+					게임 끝 : 모든 fund와 record 저장 OK, 모두 refresh OK
+					상점 구매: 해당 fund와 upgrade 안함
+					이름 변경 : username OK
+					게임 종료: 모두 - fund, record, upgrade OK
+					처음 회원가입 했을때: 모두 저장 fund, record, upgrade OK , 모두 refresh OK
+					
+			가져오기 - 
+					로그인: 모두 가져오기 fund, record, upgrade OK 모두 refresh OK
+게스트 없이 처음 게임 시작하면 Local 저장 OK
+signup 하면 로컬에 있던 정보들이 Firebase에 저장됨. OK
+signout 하면 로컬에 있는 정보들은 초기화 - 새로 파기 방지 (경고 적기) OK
+logout된 상태에서 login 할 경우 정보 다 가져오기 OK					
+다국어 지원 만들기, OK
+랭킹 ui 만들기 OK
+
+
+7.31
+Input field 고치기 OK
+Ranking 이제 읽어옴 OK
+Ranking UI OK
+빌드 OK 
+Cage 안없어짐 OK
+기지쪽 업그레이드 cost 아직 tostring 안됨 OK
+
+8.1
+보스 시작부터 2단 부스터 씀. OK
+
+기지 무기 4개까지만 설정 안됨. OK
+보스 빨갛게 나옴 test 필요 OK
+Tank 너무 단단함. OK
+하면서 table에다가 넣기. => spawn flow 만들기 OK
+ranged ddrone boss OK
+업그레이드 글자 5랩때 튀어나옴. OK
+업그레이드 다국어 OK
+tank 안사라짐, OK
+재화 다이아 상점 만들기 OK
+
+
+8.2
+튜토리얼 완성 OK
+기지 터렛 아이콘 바꾸기 OK
+튜토리얼 다국어 완성 OK
+
+Emerald, black 추가하기
+광석들 icon 추가하기
+구글 추가하던 지우던 하기
+
+
+질문
+1. 튜토리얼
+2. 소리추가
+3. 인앱결제
+
+
+4. 로딩 돌아가는거 
+
+
+
+회원가입 옆에 눌러도 안꺼짐 .
+2.도감에 시즌별 트로피 넣어도 될듯 아니면 격납고 하고 랭킹에 탭 추가해서 하는게 나을지도 
+3.소리 추가.
+4.튜토리얼 
+4.로그인 방법 구글 추가
+
+
+
+
+github clone repository to my account
+
+
+
+랭킹은 시즌제
+
+
+
+
+(sprite 바꿀 수 있으면 best) 최종레벨
+복귀해야 더해지는걸로 바꾸기
+
+배틀타임으로 애들 능력 해금시켜볼까 무빙이나 
+
+
+기지에 고철, exp 획득 collider 달아주기
+기지 안에서는 속도 모두 느려지게 만들기
+유저가 기지 안에 있으면 터렛 능력치 상승하게 만들기
+(sprite 바꿀 수 있으면 best) 최종레벨
+
+보스몹 디자인 여러개 하고싶은데 - 5분 단위로 애들 sprite 바꾸고 능력치 바꿔줘볼까 적?
+
+fingerstick command 개편 - 그냥 셋다 퉁쳐서 편한대로 쓰게 만들고 캐릭터 따라서 약간씩 능력만 바꾸고싶은디 
+최대 exp 만들기
+기믹 만들기
+
+상수 or 하드코딩 table로 빼기
+
+광물 데미지 증가 추가
+
+
+고철드론
+고철 필요 갯수 감소 업그레이드
+고철 astroid
+보스 드랍
+기지 확장
+느려지게 하는 기지 무기
+기지에 머무르면 수리해주는 기계
+명도 좀 낮춰보기?
+
+
+
+
+1등한테 수익
+광고, 공지, Best record 초기화, 명전
+하스처럼 시즌제로 무기 밴 업글 밴 추가 능력치 이런거
+
+아이폰 버전 만들기
+
+
+
+튜토리얼
+text 같은거 쫙 만ㄷ르어놓고 껐다켰다 하면서 사진 껐다켰다 하면서 맞춰서 보여주기
+
+게임 진행중에 처음이면 어떤 일이 일어났을때 타임 스탑 하고 나와서 설명 하고 레이케슽으로 눌리면 사라지기. 
+배틀매니저같은데서 경험치 드랍 if tutoOn == true: show popup (parameter로 "exp") => onopenstart{if exp => set text: ~~ , setactive(middle ai UI) }
+다국어를 위해서 set text 가 아니고 set text number 같은걸 하나??
+
+
+
+
+- 누군가가 설명 함 (타치 타치로 다음 대사)
+
+<인게임>
+- 최초 드랍 : 경험치
+- 최초 드랍 : 골드
+- 최초 드랍 : 광석
+
+<아웃게임>
+- 업그레이드탭>교환
+
+
+!!튜토리얼!!
+> 순서가 정해져 있는지
+TutorialStep
+
+
+> 순서 없이 가는지
+Dictionary<TutorialID>
+완전히 끝났는지
+overlay
+
+
+enum 
+TUTORIAL_EXP
+TUTORIAL_
+
+TutorialTable
+
+
+OnClick_Buy()
+{
+}
+
+
+
+그냥 멀리 도망치는거 막기
+
+
+
+
+
+
+

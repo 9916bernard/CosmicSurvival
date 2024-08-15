@@ -6,6 +6,7 @@ public class UIUpgradeMineral : UIUpgradeBase.Content
     [Header("[ Bind Property ]")]
     [SerializeField] private Text _Text_Title = null;
     [SerializeField] private UIFixedGridGeneric<UIUpgradeMineralItem> _Fixed_Goods = null;
+    [SerializeField] private UIText _Text_Gold = null;
 
 
     override public void Open()
@@ -16,6 +17,13 @@ public class UIUpgradeMineral : UIUpgradeBase.Content
         {
             item.Set(index, TABLE.config_setting.UpgradeMineralList[index]);
         });
+
+        _Text_Gold.SetText($": " + USER.fund.GetFund(ETB_FUND.GOLD).ToString());
+    }
+
+    protected void OnRefresh()
+    {
+        _Text_Gold.SetText($": " + USER.fund.GetFund(ETB_FUND.GOLD).ToString());
     }
 
     public void OnClick_Plus(UIUpgradeMineralItem InItem)
@@ -37,6 +45,7 @@ public class UIUpgradeMineral : UIUpgradeBase.Content
         //_Fixed_Goods.Execute((index, item) => { item.Refresh(); });
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
+        OnRefresh();
 
         //USER.fund.AddFund(marketData.FundType, -100);
 
@@ -101,6 +110,7 @@ public class UIUpgradeMineral : UIUpgradeBase.Content
         }
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
+        OnRefresh();
     }
 
 }

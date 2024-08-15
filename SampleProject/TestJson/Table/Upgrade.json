@@ -5,7 +5,8 @@
     "Name": "1000",
     "Order": 1,
     "UpgradeAmount": 1,
-    "UpgradeCost": 20
+    "UpgradeCost": 20,
+    "UpgradeMaxLevel": 5000
   },
   "1001": {
     "ID": 1001,
@@ -13,7 +14,8 @@
     "Name": "1001",
     "Order": 2,
     "UpgradeAmount": 1,
-    "UpgradeCost": 10
+    "UpgradeCost": 10,
+    "UpgradeMaxLevel": 5000
   },
   "1002": {
     "ID": 1002,
@@ -21,15 +23,17 @@
     "Name": "1002",
     "Order": 3,
     "UpgradeAmount": 0.00499999989,
-    "UpgradeCost": 10
+    "UpgradeCost": 10,
+    "UpgradeMaxLevel": 5000
   },
   "1003": {
     "ID": 1003,
     "UpgradeType": 1003,
     "Name": "1003",
     "Order": 4,
-    "UpgradeAmount": -0.100000001,
-    "UpgradeCost": 20
+    "UpgradeAmount": -0.00499999989,
+    "UpgradeCost": 10,
+    "UpgradeMaxLevel": 60
   },
   "1004": {
     "ID": 1004,
@@ -37,15 +41,17 @@
     "Name": "1004",
     "Order": 5,
     "UpgradeAmount": 0.100000001,
-    "UpgradeCost": 5
+    "UpgradeCost": 5,
+    "UpgradeMaxLevel": 40
   },
   "1005": {
     "ID": 1005,
     "UpgradeType": 1005,
     "Name": "1005",
     "Order": 6,
-    "UpgradeAmount": 1,
-    "UpgradeCost": 50
+    "UpgradeAmount": 50,
+    "UpgradeCost": 50,
+    "UpgradeMaxLevel": 10
   },
   "1006": {
     "ID": 1006,
@@ -53,7 +59,8 @@
     "Name": "1006",
     "Order": 7,
     "UpgradeAmount": 1,
-    "UpgradeCost": 50
+    "UpgradeCost": 50,
+    "UpgradeMaxLevel": 0
   },
   "1007": {
     "ID": 1007,
@@ -61,7 +68,8 @@
     "Name": "1007",
     "Order": 8,
     "UpgradeAmount": 0.100000001,
-    "UpgradeCost": 10
+    "UpgradeCost": 10,
+    "UpgradeMaxLevel": 0
   },
   "2000": {
     "ID": 2000,
@@ -69,7 +77,8 @@
     "Name": "2000",
     "Order": 9,
     "UpgradeAmount": 1,
-    "UpgradeCost": 20
+    "UpgradeCost": 20,
+    "UpgradeMaxLevel": 5000
   },
   "2001": {
     "ID": 2001,
@@ -77,7 +86,8 @@
     "Name": "2001",
     "Order": 10,
     "UpgradeAmount": -0.100000001,
-    "UpgradeCost": 10
+    "UpgradeCost": 10,
+    "UpgradeMaxLevel": 60
   },
   "2002": {
     "ID": 2002,
@@ -85,7 +95,8 @@
     "Name": "2002",
     "Order": 11,
     "UpgradeAmount": 1,
-    "UpgradeCost": 30
+    "UpgradeCost": 50,
+    "UpgradeMaxLevel": 5
   },
   "2003": {
     "ID": 2003,
@@ -93,7 +104,8 @@
     "Name": "2003",
     "Order": 12,
     "UpgradeAmount": 1,
-    "UpgradeCost": 50
+    "UpgradeCost": 5,
+    "UpgradeMaxLevel": 5000
   },
   "2004": {
     "ID": 2004,
@@ -101,6 +113,7 @@
     "Name": "2004",
     "Order": 13,
     "UpgradeAmount": 1,
-    "UpgradeCost": 15
+    "UpgradeCost": 15,
+    "UpgradeMaxLevel": 0
   }
 }

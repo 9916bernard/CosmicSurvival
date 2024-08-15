@@ -9,6 +9,13 @@ public class PickUpSpawner : MonoBehaviour
     private Transform baseStation; // Reference to the base station
     private LaserPickUp currentLaserPickup;
 
+    private float lastBlackHoleSpawnTime = 0f;
+    private float blackHoleCooldown = 60f; // 1 minute cooldown
+
+    private float lastHpSpawnTime = 0f;
+    private int hpSpawnCount = 0;
+    private float hpCooldown = 60f; // 1 minute cooldown
+
     public void Init()
     {
         InitializeLaserPickup();
@@ -16,18 +23,32 @@ public class PickUpSpawner : MonoBehaviour
 
     public void SpawnHp(Vector3 spawnlocation)
     {
-        HealPickUp hp = field.GetPooledHealPickUp();
-        if (hp != null)
+        if (Time.time - lastHpSpawnTime > hpCooldown)
         {
-            hp.transform.position = spawnlocation;
-            hp.gameObject.SetActive(true);
+            hpSpawnCount = 0; // Reset HP spawn count after 1 minute
+            lastHpSpawnTime = Time.time;
+        }
+
+        if (hpSpawnCount < 2)
+        {
+            HealPickUp hp = field.GetPooledHealPickUp();
+            if (hp != null)
+            {
+                hp.transform.position = spawnlocation;
+                hp.gameObject.SetActive(true);
+                hpSpawnCount++;
+            }
         }
     }
 
     public void SpawnBlackHole(Vector3 spawnlocation)
     {
-        var blackHolePrefab = Resources.Load<GameObject>("Battle/Pickup/blackHolePickUp");
-        GameObject blackHole = Instantiate(blackHolePrefab, spawnlocation, Quaternion.identity, field.transform); // Set parent to BattleField
+        if (Time.time - lastBlackHoleSpawnTime >= blackHoleCooldown)
+        {
+            var blackHolePrefab = Resources.Load<GameObject>("Battle/Pickup/blackHolePickUp");
+            GameObject blackHole = Instantiate(blackHolePrefab, spawnlocation, Quaternion.identity, field.transform); // Set parent to BattleField
+            lastBlackHoleSpawnTime = Time.time;
+        }
     }
 
     private void InitializeLaserPickup()

@@ -43,8 +43,16 @@ public class BulletLauncher : Weapon
 
     private IEnumerator FireBullets()
     {
+        if (_stat.FireRate < 0.1f)
+        {
+            _stat.Damage += 5;
+            _stat.Penetration += 2;
+            _stat.FireRate = 0.1f;
+
+        }
         while (true)
         {
+            
             Bullet bullet = field.GetPooledBullet(_stat.Damage, _stat.ProjectileSpeed, _stat.Penetration);
             if (bullet != null)
             {
@@ -62,6 +70,7 @@ public class BulletLauncher : Weapon
             }
 
             //SOUND.Sfx(EUI_SFX.HIT_TEST_2);
+            
 
             // Wait for the specified fire rate before firing the next bullet
             yield return new WaitForSeconds(_stat.FireRate);

@@ -64,26 +64,30 @@ public class SlashSword_Wp : Weapon
         }
     }
 
+    private float lastLifeDrainTime = -3f; // Tracks the last time LifeDrain was applied
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-
         if (isSlashing && (collision.CompareTag("Enemy") || collision.CompareTag("Boss")))
         {
-            
-
             var enemy = collision.GetComponent<EnemyUnit>();
             if (enemy != null)
             {
                 enemy._battleManager.enemyGetDamage(_stat.Damage, enemy);
             }
+
             if (_stat.LifeDrain > 0)
             {
-                
-                _player.battleManager.GainHealth(_stat.LifeDrain);
+                // Check if 3 seconds have passed since the last LifeDrain
+                if (Time.time >= lastLifeDrainTime + 3f)
+                {
+                    _player.battleManager.GainHealth(_stat.LifeDrain);
+                    lastLifeDrainTime = Time.time; // Update the lastLifeDrainTime
+                }
             }
-
         }
     }
+
 
     private void OnTriggerStay2D(Collider2D collision)
     {

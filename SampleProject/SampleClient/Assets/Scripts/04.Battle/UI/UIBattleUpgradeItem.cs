@@ -28,7 +28,7 @@ public class UIBattleUpgradeItem : MonoBehaviour
 
         var data = TABLE.equipment.Find(InEquipmentID);
 
-         _Img_Icon.SetSprite(EUI_AtlasType.EQUIPMENT, data.ResID);
+        _Img_Icon.SetSprite(EUI_AtlasType.EQUIPMENT, data.ResID);
 
         // Set the base name first
         _Text_Title.SetText(data.Name);

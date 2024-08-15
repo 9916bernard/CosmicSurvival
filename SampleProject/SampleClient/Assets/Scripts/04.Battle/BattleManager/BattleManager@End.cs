@@ -18,29 +18,18 @@ public partial class BattleManager : MonoBehaviour
         // Update the user's gold
         recordFund();
         recordStore();
-        expToLevelUp = 2;
-        experience = 0;
-        expBar.SetExperience((int)experience);
-        baseMetalToLevelUp = 2;
-        baseGainedMetal = 0;
-        MetalColleced = 0;
-        GainMetal(0);
-        battleTime = 0;
-        _EnemySpawner.bossSpawnTimer = 0;
-
-        baseStation.DroneCage.SetActive(false);
+        ResetGameStats();
 
         // Reset player position and deactivate
         bgManager.MovePlayerToPosition(new Vector3(15, 15, 0), 0.1f);
 
         // Reset player stats
         _Field._Player.GetComponent<PlayerController>().ResetPlayerStats();
-        baseStation.ResetBaseStats();
+        //baseStation.ResetBaseStats();  // Assuming this will reset all base stats, turrets, and inventory
 
         // Push pooled objects back to their pools
         pushPools();
         destroyNotPool();
-
 
         // Stop enemy spawning
         _EnemySpawner.stopSpawning();
@@ -61,6 +50,39 @@ public partial class BattleManager : MonoBehaviour
 
         SOUND.Sfx(EUI_SFX.DEAD_TUTO);
         UIM.ShowOverlay("ui_tutorial", EUI_LoadType.COMMON, new() { { "TutorialType", ETB_TUTORIAL.BATTLE_DIE } });
+    }
+
+    private void ResetGameStats()
+    {
+        expToLevelUp = 2;
+        experience = 0;
+        expBar.SetExperience((int)experience);
+        baseMetalToLevelUp = 2;
+        baseGainedMetal = 0;
+        MetalColleced = 0;
+        GainMetal(0);
+        battleTime = 0;
+        _EnemySpawner.bossSpawnTimer = 0;
+        isRocketSpawnerActive = false;
+
+        // Reset collected minerals
+        gold = 0;
+        pearl = 0;
+        Ruby = 0;
+        Amber = 0;
+        Sapphire = 0;
+        Emerald = 0;
+        Black = 0;
+
+        List<Base> basesCopy = new List<Base>(bases);
+
+        // Reset all base stations using the copy
+        foreach (var baseStation in basesCopy)
+        {
+            baseStation.ResetBaseStats();
+            baseStation.DroneCage.SetActive(false);
+        }
+        // Reset any other game-specific stats here
     }
 
     private void recordStore()
@@ -190,7 +212,6 @@ public partial class BattleManager : MonoBehaviour
         }
     }
 
-
     private void pushHps()
     {
         var hps = _Field.GetComponentsInChildren<HealPickUp>(true);
@@ -263,7 +284,6 @@ public partial class BattleManager : MonoBehaviour
 
     private void pushWaves()
     {
-
         var waves = _Field.GetComponentsInChildren<ShockWave>(true);
 
         foreach (var wave in waves)
@@ -326,8 +346,6 @@ public partial class BattleManager : MonoBehaviour
             }
         }
     }
-
-   
 
     public bool HasUsedRevive()
     {

@@ -82,6 +82,7 @@ public class EnemyUnit : MonoBehaviour
         Collider2D.enabled = false;
         isDestroyed = true;
         animator.SetTrigger("DestroyTrigger");
+        _battleManager._EnemySpawner.OnEnemyDestroyed(this);
 
     }
 

@@ -63,7 +63,7 @@ public class GoodsCenter : Singleton<GoodsCenter>
         USER.Inst().SaveData();
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
-        UIM.ShowToast("Purchased!");
+        UIM.ShowToast(41025);
     }
 
 

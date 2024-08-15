@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Rendering;
 using Cysharp.Threading.Tasks;
 using System.Xml.Linq;
+using UnityEngine.UI;
 
 public partial class UIM : Singleton<UIM>
 {
@@ -47,7 +48,11 @@ public partial class UIM : Singleton<UIM>
     {
         _InCanvas = InCanvas;
 
-		__MakeArea("area_base", _Containers[(int)EUI_AreaType.BASE]);
+        var scaler = _InCanvas.GetComponent<CanvasScaler>();
+        if (scaler != null)
+            _BaseResolution = scaler.referenceResolution;
+
+        __MakeArea("area_base", _Containers[(int)EUI_AreaType.BASE]);
         __MakeArea("area_popup", _Containers[(int)EUI_AreaType.POPUP]);
         __MakeArea("area_overlay", _Containers[(int)EUI_AreaType.OVERLAY]);
         __MakeArea("area_managed", _Containers[(int)EUI_AreaType.MANAGED]);

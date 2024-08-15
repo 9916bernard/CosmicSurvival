@@ -25,6 +25,7 @@ public class Metal : MonoBehaviour
             if (player != null)
             {
                 battleManager.GainMetal(MetalValue);
+                RemoveFromQueue(battleManager.metalSpawner.spawnedMetals, this);
                 _pool.Push(this);
             }
         }
@@ -40,5 +41,21 @@ public class Metal : MonoBehaviour
         var _Metal = Instantiate(Resources.Load("Battle/Pickup/Metal")).GetComponent<Metal>();
         _Metal.SetPool(Pool);
         return _Metal;
+    }
+
+    public void RemoveFromQueue<T>(Queue<T> queue, T elementToRemove)
+    {
+        int initialCount = queue.Count;
+
+        for (int i = 0; i < initialCount; i++)
+        {
+            T currentElement = queue.Dequeue();
+
+            // Skip the element to remove
+            if (!EqualityComparer<T>.Default.Equals(currentElement, elementToRemove))
+            {
+                queue.Enqueue(currentElement);  // Add it back to the queue if it doesn't match
+            }
+        }
     }
 }

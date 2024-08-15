@@ -156,6 +156,18 @@ public partial class PlayerController : MonoBehaviour
         }
     }
 
+    void OnTriggerStay2D(Collider2D other)
+    {
+        if (!isInvincible && other.CompareTag("Boss"))
+        {
+            if (gameObject.CompareTag("Player"))
+            {
+                battleManager.getDamage(1);
+                SetInvincible();
+            }
+        }
+    }
+
     public void SetInvincible()
     {
         StartCoroutine(Invincible());
@@ -209,5 +221,7 @@ public partial class PlayerController : MonoBehaviour
         _dicWeapon.Clear();
 
         currentWeaponCount = 1;
+
+       
     }
 }

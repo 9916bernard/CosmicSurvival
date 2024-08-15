@@ -11,6 +11,7 @@ public class UTBUpgrade_Record
     public short Order;
     public float UpgradeAmount;
     public int UpgradeCost;
+    public int UpgradeMaxLevel;
 
 
     public void Read(BinaryReader fs, byte[] buffer)
@@ -23,6 +24,7 @@ public class UTBUpgrade_Record
         Order = fs.ReadInt16();
         UpgradeAmount = fs.ReadSingle();
         UpgradeCost = fs.ReadInt32();
+        UpgradeMaxLevel = fs.ReadInt32();
     }
 };
 

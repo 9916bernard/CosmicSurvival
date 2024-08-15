@@ -31,6 +31,11 @@ public class UISettingAccountSignUp : UIBase
 
     public void OnclickConfirm()
     {
+        if (auth.CurrentUser != null)
+        {
+            SetLogMessage("You are already signed in.");
+            return;
+        }
         string userName = _Input_userName.text;
         string email = _Input_email.text;
         string password = _Input_password.text;
@@ -92,7 +97,7 @@ public class UISettingAccountSignUp : UIBase
                 // Save user data to Firestore
                 await FirebaseManager.Instance.SaveAllDataToFirestore();
 
-                UIM.ShowToast("Sign Up Success!");
+                UIM.ShowToast(41023);
                 CloseSignUpTab();
 
                 // Refresh the UI

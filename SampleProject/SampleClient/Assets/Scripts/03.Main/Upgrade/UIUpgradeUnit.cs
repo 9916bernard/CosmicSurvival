@@ -32,6 +32,13 @@ public class UIUpgradeUnit : UIUpgradeBase.Content
             return;
         }
 
+        if (USER.upgrade.GetUpgradeEffectLevel(_UpRec.UpgradeType) >= _UpRec.UpgradeMaxLevel)
+        {
+            UIM.ShowToast(41020);
+            return;
+
+        }
+
         if (InItem.IndexInList < 0 || InItem.IndexInList >= TABLE.config_setting.UpgradeMineralList.Length)
         {
             Debug.LogError("InItem.IndexInList is out of range");
@@ -81,7 +88,7 @@ public class UIUpgradeUnit : UIUpgradeBase.Content
         }
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
-        UIM.ShowToast("업그레이드 성공!");
+        UIM.ShowToast(41019);
     }
 
 }

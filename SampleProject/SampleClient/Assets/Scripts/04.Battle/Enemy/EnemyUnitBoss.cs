@@ -195,6 +195,8 @@ public class EnemyUnitBoss : EnemyUnit
         }
 
         Debug.Log("=========== Boss : OnDestroyed");
+
+        _battleManager._EnemySpawner.OnEnemyDestroyed(this);
     }
 
     public void UpdateColorBasedOnHealth()

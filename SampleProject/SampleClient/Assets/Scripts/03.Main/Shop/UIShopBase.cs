@@ -29,7 +29,7 @@ public class UIShopBase : UIBase
     public void OnClickSmallDia()
     {
 
-        UIM.ShowToast("Purchase Success!");
+        UIM.ShowToast(41025);
         GoodsCenter.Inst().Fund_Buy_Diamond(50);
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
@@ -39,7 +39,7 @@ public class UIShopBase : UIBase
     {
 
         GoodsCenter.Inst().Fund_Buy_Diamond(110);
-        UIM.ShowToast("Purchase Success!");
+        UIM.ShowToast(41025);
 
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
@@ -48,7 +48,7 @@ public class UIShopBase : UIBase
     public void OnClickLargeDia()
     {
         GoodsCenter.Inst().Fund_Buy_Diamond(230);
-        UIM.ShowToast("Purchase Success!");
+        UIM.ShowToast(41025);
         
 
         UIM.Inst().RefreshUI(EUI_RefreshType.FUND);
@@ -58,7 +58,7 @@ public class UIShopBase : UIBase
     {
         if (USER.fund.GetFund(ETB_FUND.DIAMOND) < 50)
         {
-            UIM.ShowToast("Not enough Diamond");
+            UIM.ShowToast(41021);
             return;
         }
 
@@ -69,7 +69,7 @@ public class UIShopBase : UIBase
     {
         if (USER.fund.GetFund(ETB_FUND.DIAMOND) < 100)
         {
-            UIM.ShowToast("Not enough Diamond");
+            UIM.ShowToast(41021);
             return;
         }
 
@@ -80,7 +80,7 @@ public class UIShopBase : UIBase
     {
         if (USER.fund.GetFund(ETB_FUND.DIAMOND) < 200)
         {
-            UIM.ShowToast("Not enough Diamond");
+            UIM.ShowToast(41021);
             return;
         }
 
@@ -93,7 +93,7 @@ public class UIShopBase : UIBase
 
         if (USER.fund.GetFund(ETB_FUND.DIAMOND) < 200)
         {
-            UIM.ShowToast("Not enough Diamond");
+            UIM.ShowToast(41021);
             return;
         }
         AdMobManager.Instance.DisAbleAds();

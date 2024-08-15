@@ -17,6 +17,11 @@ public class EnemySpawner : MonoBehaviour
     private UTBEnemy enemyRec = TABLE.enemy;
     private List<int> spawnWeights;
 
+    private const int MaxActiveEnemies = 150; // Maximum allowed active enemies
+    private int consecutiveDangerWarnings = 0; // Counter for consecutive danger warnings
+
+    private List<EnemyUnit> activeEnemies = new List<EnemyUnit>(); // List to keep track of active enemies
+
     public void Init()
     {
         spawnWeights = new List<int> { enemyRec.Find(1001).SpawnChance, enemyRec.Find(1002).SpawnChance, enemyRec.Find(1003).SpawnChance }; // Weights for enemies 1001, 1002, 1003
@@ -32,28 +37,43 @@ public class EnemySpawner : MonoBehaviour
 
     private IEnumerator SpawnEnemy()
     {
-        
         var normalEnemy = spawnRec.Find(1001);
         int spawnCounter = 0; // Counter to keep track of the spawn ratio
-        
-        
 
         while (true)
         {
+            // If the number of active enemies exceeds the limit, wait until it drops
+            if (activeEnemies.Count >= MaxActiveEnemies)
+            {
+                UIM.ShowToast(41027);
+                consecutiveDangerWarnings++;
+
+                // If the warning has been shown three times consecutively, apply damage
+                if (consecutiveDangerWarnings >= 3)
+                {
+                    battleManager.getDamage(1);
+                }
+
+                yield return new WaitForSeconds(5f); // Check again after 5 seconds
+                continue;
+            }
+            else
+            {
+                // Reset the warning counter when the enemy count drops below the limit
+                consecutiveDangerWarnings = 0;
+            }
+
             spawnRate = normalEnemy.SpawnRate - (battleManager.battleTime / normalEnemy.IncreaseRate);
             if (spawnRate < normalEnemy.MaxSpawnRate)
             {
                 spawnRate = normalEnemy.MaxSpawnRate;
             }
 
-            Debug.Log(spawnRate);
-
             bossSpawnTimer += spawnRate; // Increment the boss spawn timer by the spawn rate interval
-            //bossSpawnTimer += Time.deltaTime;
+
             // Check if it's time to spawn the boss
             if (bossSpawnTimer >= enemyRec.Find(3001).SpawnInterval)
             {
-               
                 var boss = field.GetPooledEnemyBoss(3001);
                 if (boss != null)
                 {
@@ -62,6 +82,7 @@ public class EnemySpawner : MonoBehaviour
                     boss.transform.rotation = Quaternion.identity;
                     boss.transform.localScale = Vector3.one * 2; // Set the boss scale to three times its original scale
                     boss.gameObject.SetActive(true);
+                    activeEnemies.Add(boss); // Add the boss to the active enemies list
                 }
                 bossSpawnTimer = 0.0f; // Reset the boss spawn timer
             }
@@ -81,14 +102,28 @@ public class EnemySpawner : MonoBehaviour
                     enemy.transform.localScale = Vector3.one; // Reset the enemy scale to its original scale
                     enemy.gameObject.SetActive(true);
 
+                    activeEnemies.Add(enemy); // Add the enemy to the active enemies list
                     // Increment the spawn counter
                     spawnCounter++;
                 }
             }
-          
+
             // Wait for the specified spawn rate before spawning the next enemy
             yield return new WaitForSeconds(spawnRate);
         }
+    }
+
+    public void OnEnemyDestroyed(EnemyUnit destroyedEnemy)
+    {
+        if (activeEnemies.Contains(destroyedEnemy))
+        {
+            activeEnemies.Remove(destroyedEnemy); // Remove the enemy from the active enemies list
+        }
+    }
+
+    private int GetActiveEnemyCount()
+    {
+        return activeEnemies.Count;
     }
 
     private int GetRandomEnemyID(float battleTime)

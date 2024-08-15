@@ -11,7 +11,7 @@ public class UIUpgradeStation : UIUpgradeBase.Content
     override public void Open()
     {
 
-        _Fixed_Goods.Make(TABLE.config_setting.UpgradeMineralList.Length-3, (index, item) =>
+        _Fixed_Goods.Make(TABLE.config_setting.UpgradeMineralList.Length-2, (index, item) =>
         {
             item.Set(index, TABLE.config_setting.UpgradeMineralList[index]);
         });
@@ -39,15 +39,18 @@ public class UIUpgradeStation : UIUpgradeBase.Content
             Debug.LogError("UpgradeMineralList is null");
             return;
         }
-
         _UpRec = TABLE.upgrade.Find(2000 + InItem.IndexInList);
 
-        FTB_UpgradeMineral marketData = TABLE.config_setting.UpgradeMineralList[InItem.IndexInList];
+        if (USER.upgrade.GetUpgradeEffectLevel(_UpRec.UpgradeType) >= _UpRec.UpgradeMaxLevel)
+        {
+            UIM.ShowToast(41020);
+            return;
 
-        Debug.Log($"InItem.IndexInList: {InItem.IndexInList}");
-        Debug.Log($"marketData.FundType: {marketData.FundType}");
-        Debug.Log($"marketData: {marketData}");
-        Debug.Log($"_UpRec: {_UpRec}");
+        }
+
+        
+
+        FTB_UpgradeMineral marketData = TABLE.config_setting.UpgradeMineralList[InItem.IndexInList];
 
         if (USER.fund == null)
         {

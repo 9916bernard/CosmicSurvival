@@ -15,29 +15,40 @@ public class Base : MonoBehaviour
 
     private Vector3 startPosition;
 
+    public bool isBaseExpandFull = false;
+
+    public static int baseStationIndex = 0;  // Track the index for base station expansion
+
     [HideInInspector] public bool isAutoCannonTurretActive = false;
     private bool isAutoCannonTurretFirstActive = true;
 
     public bool isInventoryFull => currentWeaponCount >= MaxWeaponCount;
+
+    /// <summary>
+    /// /4
+    /// </summary>
     private const int MaxWeaponCount = 4;
-    private int currentWeaponCount = 0; // AutoCannon is initially active
+    [HideInInspector] public int currentWeaponCount = 0;
 
     public GameObject DroneCage;
 
     public AutoCannonTurret AutoCannonTurret { get; private set; } = new AutoCannonTurret();
 
-    // Define the turret positions
-    private readonly Vector3[] turretPositions = new Vector3[]
-    {
-        new Vector3(-1.15f, 1f, -2f),  // First slot
-        new Vector3(-1.15f, -1f, -2f), // Second slot
-        new Vector3(1f, 1f, -2f),   // Third slot
-        new Vector3(1f, -1f, -2f),  // Fourth slot
-    };
+    // Define the turret positions relative to the base station
+    private Vector3[] turretPositions;
 
     private void Start()
     {
         startPosition = transform.position;
+
+        // Initialize turret positions relative to the base station position
+        turretPositions = new Vector3[]
+        {
+            new Vector3(-1.15f, 1f, -2f),  // First slot
+            new Vector3(-1.15f, -1f, -2f), // Second slot
+            new Vector3(1f, 1f, -2f),   // Third slot
+            new Vector3(1f, -1f, -2f),  // Fourth slot
+        };
     }
 
     void Update()
@@ -74,7 +85,7 @@ public class Base : MonoBehaviour
 
         foreach (var turret in _dicTurret)
         {
-            if (turret.Value._level < 9)
+            if (turret.Value._level < 10)
             {
                 upgradableTurrets.Add(turret.Key);
             }
@@ -105,7 +116,6 @@ public class Base : MonoBehaviour
 
         var _obj = Resources.Load($"Battle/Turret/{data.PrefabName}");
 
-        // Instantiate the turret and assign it to the correct position
         switch (InTurretID)
         {
             case 2001: turret = Instantiate(_obj, transform).GetComponent<AutoCannonTurret>(); break;
@@ -134,27 +144,93 @@ public class Base : MonoBehaviour
                 if (InTurretID == 2004)
                 {
                     DroneCage.transform.localPosition = turretPositions[positionIndex];
-        }
+                }
             }
         }
-        
 
         turret.Init(data, this);
 
         _dicTurret.Add(InTurretID, turret);
 
         currentWeaponCount++;
+
+        // Check if we need to expand the base station
+        if (AllInventoryTurretMaxed() && isInventoryFull && !isBaseExpandFull)
+        {
+            ExpandBaseStation();
+        }
+    }
+
+    public void ExpandBaseStation()
+    {
+        if (AllInventoryTurretMaxed() && isInventoryFull && !isBaseExpandFull)
+        {
+            if (baseStationIndex < battleManager.baseStationPositions.Length - 1)
+            {
+                // Increment the base station index to the next location
+                baseStationIndex++;
+
+                // Instantiate the next base station
+                Vector3 nextBasePosition = battleManager.baseStationPositions[baseStationIndex];
+                GameObject newBasePrefab = Resources.Load<GameObject>("Battle/BaseStation"); // Load the prefab
+
+                // Instantiate and initialize the new base station
+                GameObject newBaseObject = Instantiate(newBasePrefab, nextBasePosition, Quaternion.identity);
+                Base newBase = newBaseObject.GetComponent<Base>();
+                newBase.InitializeFromExistingBase(this); // Copy stats and turrets from the current base
+
+                battleManager.bases.Add(newBase); // Add the new base to the list
+            }
+            else
+            {
+                isBaseExpandFull = true; // Mark that the base expansion is complete
+            }
+        }
+    }
+
+
+    public void InitializeFromExistingBase(Base existingBase)
+    {
+        // Copy necessary fields from the existing base
+        battleManager = existingBase.battleManager;
+        field = existingBase.field;
+        MainCamera = existingBase.MainCamera;
+        DroneCage = existingBase.DroneCage;
+
+        // Position of the new base station
+        Vector3 newBasePosition = battleManager.baseStationPositions[baseStationIndex];
+
+        // Adjust the turret positions based on the new base position
+        turretPositions = new Vector3[]
+        {
+            newBasePosition + new Vector3(-1.15f, 1f, -2f),  // First slot
+            newBasePosition + new Vector3(-1.15f, -1f, -2f), // Second slot
+            newBasePosition + new Vector3(1f, 1f, -2f),   // Third slot
+            newBasePosition + new Vector3(1f, -1f, -2f),  // Fourth slot
+        };
+
+        // Any other necessary initializations
     }
 
     public void ResetBaseStats()
     {
-        var turretInstances = GetComponentsInChildren<Turret>(); // Note the plural 'Components'
-        foreach (var turret in turretInstances)
+        // If this is the first base station, only remove the weapons
+        if (battleManager.bases[0] == this)
         {
-            Destroy(turret.gameObject);
+            var turretInstances = GetComponentsInChildren<Turret>(); // Note the plural 'Components'
+            foreach (var turret in turretInstances)
+            {
+                Destroy(turret.gameObject);
+            }
+            _dicTurret.Clear();
+            currentWeaponCount = 0;
         }
-        _dicTurret.Clear();
-
-        currentWeaponCount = 0;
+        else
+        {
+            // For other base stations, destroy the entire base along with its turrets
+            battleManager.bases.Remove(this); // Remove this base from the BattleManager's list
+            Destroy(gameObject); // Destroy the base object
+        }
     }
+
 }

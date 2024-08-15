@@ -3,7 +3,6 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-//using TMPro.EditorUtilities;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -28,9 +27,9 @@ public class UIBattleUpgrade : UIBase
     protected override void OnOpenStart()
     {
         _Battle = GetOpenParam<BattleManager>("BattleManager");
-        _Player = GetOpenParam<PlayerController>("Player");
         type = GetOpenParam<string>("Type");
-        _Base = _Battle.baseStation;
+        _Base = _Battle.bases[Base.baseStationIndex]; // Get the current base to upgrade
+        _Player = _Battle._Field._Player;
 
         _Curtain.raycastTarget = true;
 
@@ -84,10 +83,24 @@ public class UIBattleUpgrade : UIBase
         }
         else if (type == "base")
         {
-            if (_Base.AllInventoryTurretMaxed() && _Base.isInventoryFull)
+            if(_Base.isBaseExpandFull)
             {
                 _ItemList.Add(999); // Restore Health
                 _ItemList.Add(1000); // Gain Gold
+            }
+            else if (_Base.AllInventoryTurretMaxed() && _Base.isInventoryFull)
+            {
+                // Initiate the expansion of the base station
+                _Base.ExpandBaseStation(); // Expand and reset the base station for the next upgrades
+                if (!_Base.isBaseExpandFull)
+                {
+                    _Base._dicTurret.Clear(); // Clear the turret dictionary
+                    _Base.currentWeaponCount = 0;
+
+                    _Battle.BaseLevelUp();     // Trigger the base level up
+                }
+                
+
             }
             else if (_Base.isInventoryFull)
             {
@@ -112,7 +125,6 @@ public class UIBattleUpgrade : UIBase
                 {
                     _ItemList.Add(upgradableWeapons[i]);
                 }
-
             }
         }
 
@@ -120,12 +132,6 @@ public class UIBattleUpgrade : UIBase
         {
             InItem.Set(InIndex, _ItemList[InIndex], _Player, _Base, type);
         });
-    }
-
-
-    private void MakeItem(int InIndex, UIBattleUpgradeItem InItem)
-    {
-        InItem.Set(InIndex, _ItemList[InIndex], _Player, _Base ,type);
     }
 
     protected override void OnRefresh()
@@ -144,7 +150,6 @@ public class UIBattleUpgrade : UIBase
 
         Time.timeScale = 1.0f;
     }
-
     public void OnClick_Item(UIBattleUpgradeItem InItem)
     {
         if (_IsClosing == true)
@@ -162,24 +167,23 @@ public class UIBattleUpgrade : UIBase
                 // Restore Health
                 _Player.health++;
                 _Battle.hpBar.SetHp(_Player.health);
-                
+
             }
             else if (weaponID == 1000)
             {
                 // Gain Gold
-                //_Battle.GainGold(100); // Assuming GainGold is a method in BattleManager
+                _Battle.gold += 25; // Assuming GainGold is a method in BattleManager
                 //Debug.Log("Gained gold.");
             }
             else
             {
                 _Player.AddWeapon(weaponID);
-                
+
             }
 
             StartCoroutine(CloseProc());
         }
     }
-
     public void OnClick_Item_Base(UIBattleUpgradeItem InItem)
     {
         if (_IsClosing == true)
@@ -187,11 +191,11 @@ public class UIBattleUpgrade : UIBase
             return;
         }
 
+
         if (InItem.IndexInList >= 0 && InItem.IndexInList < _ItemList.Count)
         {
             int turretID = _ItemList[InItem.IndexInList];
 
-            // Handle the special options
             if (turretID == 999)
             {
                 // Restore Health
@@ -202,21 +206,19 @@ public class UIBattleUpgrade : UIBase
             else if (turretID == 1000)
             {
                 // Gain Gold
-                //_Battle.GainGold(100); // Assuming GainGold is a method in BattleManager
+                _Battle.gold += 25; // Assuming GainGold is a method in BattleManager
                 //Debug.Log("Gained gold.");
             }
             else
             {
-
-            
-                    _Base.AddTurret(turretID);
-                
+                _Base.AddTurret(turretID);
             }
+            // Handle the selected upgrade for the correct base
+           
 
             StartCoroutine(CloseProc());
         }
     }
-
 
     IEnumerator CloseProc()
     {

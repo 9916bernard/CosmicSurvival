@@ -47,11 +47,12 @@ public class UIBattleGameOver : UIBase
     {
         if (battleManager.HasUsedRevive())
         {
-            UIM.ShowToast("Already Used");
+            UIM.ShowToast(41024);
             return;
         }
         else if (adsDisabled )
         {
+
             // If ads are disabled or revive has been used, revive the player directly
             OnAdWatched(null);
         }

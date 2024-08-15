@@ -14,7 +14,5 @@ SampleProject/SampleClient/obj/
 SampleProject/SampleClient/Temp/
 SampleProject/SampleClient/UserSettings/
 JCProtoProject/
-SampleProject/SampleClient/Assets/Firebase/Plugins/x86_64/FirebaseCppApp-12_1_0.so
-SampleProject/SampleClient/Assets/Firebase/Plugins/x86_64/FirebaseCppApp-12_1_0.bundle
 *.vsconfig
 *.csproj

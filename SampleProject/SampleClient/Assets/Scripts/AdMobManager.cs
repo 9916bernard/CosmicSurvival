@@ -83,7 +83,7 @@ public class AdMobManager : MonoBehaviour
         else
         {
             Debug.Log("Rewarded ad is not loaded yet.");
-            UIM.ShowToast("Ad is not ready yet.");
+            UIM.ShowToast(41026);
         }
     }
 

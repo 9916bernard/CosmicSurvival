@@ -29,7 +29,7 @@ public class UISettingLogoutConfirm : UIBase
         ResetLocalUserData();
 
         // Optionally, update the UI or navigate to a different screen
-        UIM.ShowToast("You have been logged out.");
+        UIM.ShowToast(41022);
         UIM.Inst().RefreshUI(EUI_RefreshType.ACCOUNT, EUI_RefreshType.FUND, EUI_RefreshType.PLAYER);
 
         // Close the logout confirmation popup

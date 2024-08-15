@@ -12,7 +12,7 @@ public partial class BattleManager : MonoBehaviour
     private BulletLauncher _BulletSpawner = null;
     public EnemySpawner _EnemySpawner = null;
     [SerializeField] private PickUpSpawner PickUpSpawner = null;
-    [SerializeField] private ExpSpawner _ExpSpawner = null;
+    public ExpSpawner _ExpSpawner = null;
     [SerializeField] private RocketLauncher _rocketSpawner = null;
     [SerializeField] private Canvas canvasUi = null;
     public GameObject weapons = null;
@@ -20,6 +20,7 @@ public partial class BattleManager : MonoBehaviour
     [SerializeField] SceneMain sceneMain = null;
     [SerializeField] private AstroidSpawner astroidSpawner = null;
     [SerializeField] private BgGenerator bgGenerator = null;
+    public MetalSpawner metalSpawner = null;
 
     // Experience properties
     [HideInInspector] public ExpBar expBar; // Reference to the ExpBar
@@ -71,6 +72,58 @@ public partial class BattleManager : MonoBehaviour
     [HideInInspector] public int Black;
 
     [HideInInspector] public float battleTime;
+    public List<Base> bases = new List<Base>();  // List to store all base stations
+    public Vector3[] baseStationPositions = new Vector3[]
+     {
+
+     };
+    private void InitializeBaseStationPositions()
+    {
+        baseStationPositions = new Vector3[]
+        {
+        // 5x5 grid based on the initial 4 positions
+        new Vector3(0f,0f, 0f),
+        new Vector3(11.4f, 15f, 2f),
+        new Vector3(15f, 18.5f, 2f),
+        new Vector3(15f, 11.5f, 2f),
+        new Vector3(18.6f, 15f, 2f),
+
+        // Positions to complete the 3x3 grid
+        new Vector3(11.4f, 18.5f, 2f),
+        new Vector3(11.4f, 11.5f, 2f),
+        new Vector3(18.6f, 18.5f, 2f),
+        new Vector3(18.6f, 11.5f, 2f),
+        //new Vector3(15f, 15f, 2f),
+
+        // Positions to expand to a 4x4 grid
+        new Vector3(7.7f, 18.5f, 2f),
+        new Vector3(7.7f, 15f, 2f),
+        new Vector3(7.7f, 11.5f, 2f),
+        new Vector3(11.4f, 22f, 2f),
+        new Vector3(15f, 22f, 2f),
+        new Vector3(18.6f, 22f, 2f),
+        new Vector3(22.2f, 18.5f, 2f),
+        new Vector3(22.2f, 15f, 2f),
+        new Vector3(22.2f, 11.5f, 2f),
+        new Vector3(18.6f, 8f, 2f),
+        new Vector3(15f, 8f, 2f),
+        new Vector3(11.4f, 8f, 2f),
+        new Vector3(7.7f, 22f, 2f),
+        new Vector3(22.2f, 22f, 2f),
+        new Vector3(22.2f, 8f, 2f),
+        new Vector3(7.7f, 8f, 2f)
+        };
+    }
+
+    private void Start()
+    {
+        // Initialize the first base station at the beginning
+        Base firstBase = FindObjectOfType<Base>();  // Assuming the first base is already in the scene
+        bases.Add(firstBase);
+    }
+
+    private float lastDamageTime = 0f; // Tracks the last time the player took damage
+    private float damageInterval = 5f; // Time interval between damage ticks
 
     private void Update()
     {
@@ -80,7 +133,19 @@ public partial class BattleManager : MonoBehaviour
             //metalCount.MetalText.text = MetalColleced.ToString() +"/"+ baseMetalToLevelUp.ToString();
         }
 
+        // Check the distance between the player and the base station
+        float distanceFromBase = Vector3.Distance(_Field._Player.transform.position, baseStation.transform.position);
+        float safeDistance = 60f; // Set this to the maximum safe distance from the base station
 
+        if (distanceFromBase > safeDistance)
+        {
+            // Check if enough time has passed since the last damage tick
+            if (Time.time - lastDamageTime >= damageInterval)
+            {
+                getDamage(1);
+                lastDamageTime = Time.time; // Update the last damage time
+            }
+        }
     }
 
     public void Init(UIBattleBase InBattleUI, Action InOnBattleEndAction)
@@ -111,6 +176,13 @@ public partial class BattleManager : MonoBehaviour
         startTime = Time.time;
         SetReviveUsed(false);
         PickUpSpawner.Init();
+        SpawnStartMetal();
+        //baseStationPositions = baseStationPositions.AddBaseStationPosition(30, 3.6f);
+        InitializeBaseStationPositions();
+
+        // Add more positions to further extend the grid
+        //baseStationPositions = baseStationPositions.AddBaseStationPosition(7, 3f);
+
 
 
         if (!USER.player.IsTutorialCompleted("BATTLE_START_MODE_MAIN"))
@@ -129,6 +201,25 @@ public partial class BattleManager : MonoBehaviour
         SOUND.Sfx(EUI_SFX.GAME_START);
 
     }
+
+    private void SpawnStartMetal()
+    {
+        float upgradeLevel = USER.upgrade.GetUpgradeEffectLevel(ETB_UPGRADE_EFFECT.STATION_SRTMT);
+        float radius = 2f; // Radius from the base station
+
+        for (int i = 0; i < upgradeLevel; i++)
+        {
+            // Calculate the angle for this metal spawn
+            float angle = i * Mathf.PI * 2 / upgradeLevel;
+
+            // Calculate the position using the angle
+            Vector3 spawnPosition = baseStation.transform.position + new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), 0) * radius;
+
+            // Spawn the metal at the calculated position
+            metalSpawner.SpawnMetal(spawnPosition);
+        }
+    }
+
 
     public IEnumerator HandleTutorialOverlay(string overlayName, ETB_TUTORIAL tutorialType)
     {
@@ -215,7 +306,7 @@ public partial class BattleManager : MonoBehaviour
 
     }
 
-    public void GainMetal(int amount)
+    public void GainMetal(float amount)
     {
         MetalColleced += amount;
         metalCount.MetalText.text = MetalColleced.ToString() + "/" + baseMetalToLevelUp.ToString(); // Update the UI with the current metal status
@@ -225,15 +316,12 @@ public partial class BattleManager : MonoBehaviour
 
     public void BaseGainMetal()
     {
-
         if (MetalColleced >= baseMetalToLevelUp)
         {
             MetalColleced -= baseMetalToLevelUp;
             BaseLevelUp(); // Level-up the base
             metalCount.MetalText.text = MetalColleced.ToString() + "/" + baseMetalToLevelUp.ToString(); // Update the UI with the current metal status
         }
-
-
     }
 
 
@@ -333,22 +421,40 @@ public partial class BattleManager : MonoBehaviour
 
     public void BaseLevelUp()
     {
+        Base currentBase = null;
+
+        if (Base.baseStationIndex < bases.Count)
+        {
+            currentBase = bases[Base.baseStationIndex];
+        }
+
+        if (currentBase != null && currentBase.isInventoryFull && currentBase.AllInventoryTurretMaxed() && !baseStation.isBaseExpandFull)
+        {
+            currentBase.ExpandBaseStation();
+        }
+
         if (!USER.player.IsTutorialCompleted("BATTLE_UPGRADE_BASE"))
         {
             StartCoroutine(HandleTutorialOverlay("ui_tutorial", ETB_TUTORIAL.BATTLE_UPGRADE_BASE));
         }
 
         Debug.Log("Base Level Up!");
-        baseMetalToLevelUp += 0.5f;
+
+        // Increase baseMetalToLevelUp if it's less than or equal to 30
+        if (baseMetalToLevelUp <= 20)
+        {
+            baseMetalToLevelUp += 0.5f;
+        }
 
         UIBase upgrade = UIM.ShowPopup("ui_battle_base_upgrade", EUI_LoadType.BATTLE, new()
-        {
-            { "BattleManager", this },
-            { "Player", _Field._Player.GetComponent<PlayerController>() },
-            { "Type", "base"}
-        });
+    {
+        { "BattleManager", this },
+        { "Player", _Field._Player.GetComponent<PlayerController>() },
+        { "Type", "base" }
+    });
         SOUND.Sfx(EUI_SFX.LEVEL_UP);
     }
+
 
 
     public void DropExperience(EnemyUnit enemy)
@@ -365,8 +471,6 @@ public partial class BattleManager : MonoBehaviour
 
     public void DropMetal(EnemyUnit enemy)
     {
-
-
         float dropChance = 0.3f;
         if (UnityEngine.Random.value < dropChance)
         {
@@ -374,7 +478,6 @@ public partial class BattleManager : MonoBehaviour
             {
                 StartCoroutine(HandleTutorialOverlay("ui_tutorial", ETB_TUTORIAL.BATTLE_DROP_METAL));
             }
-            MetalSpawner metalSpawner = FindObjectOfType<MetalSpawner>();
             metalSpawner.SpawnMetal(enemy.transform.position + MetalSpawnLocation);
         }
     }
@@ -387,8 +490,6 @@ public partial class BattleManager : MonoBehaviour
             PickUpSpawner pickUpSpawner = FindObjectOfType<PickUpSpawner>();
             PickUpSpawner.SpawnHp(enemy.transform.position + HpSpawnLocation);
         }
-
-
     }
 
     public void DropBlackHole(EnemyUnit enemy)
@@ -400,4 +501,6 @@ public partial class BattleManager : MonoBehaviour
             PickUpSpawner.SpawnBlackHole(enemy.transform.position);
         }
     }
+
+    
 }

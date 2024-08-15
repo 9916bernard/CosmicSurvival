@@ -9,7 +9,7 @@ public class AutoCannonTurret : Turret
     [SerializeField] private Transform bulletLocationRight;
     private Base baseStation;
     [SerializeField] private GameObject bulletPrefab;
-    
+
 
 
     private float nextFireTime = 0f;
@@ -18,6 +18,7 @@ public class AutoCannonTurret : Turret
     {
         base.Init(data, baseStation);
         this.baseStation = baseStation;
+        StartCoroutine(Shoot());
     }
 
     void Update()
@@ -27,20 +28,19 @@ public class AutoCannonTurret : Turret
 
     private void DetectAndShootEnemies()
     {
-        
+
         Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
 
         foreach (var hit in hits)
         {
             if (hit.CompareTag("Enemy") || hit.CompareTag("Boss"))
             {
-                if (Time.time >= nextFireTime)
-                {
+                
                     RotateTowardsTarget(hit.transform);
-                    Shoot();
-                    nextFireTime = Time.time + 1f / _stat.FireRate;
-                }
-                break;
+                   
+                    
+                    
+               
             }
         }
     }
@@ -52,23 +52,29 @@ public class AutoCannonTurret : Turret
         transform.rotation = Quaternion.Euler(new Vector3(0, 0, angle - 270));
     }
 
-    private void Shoot()
+    private IEnumerator Shoot()
     {
-        Bullet bulletLeft = baseStation.field.GetPooledBullet(_stat.Damage, _stat.ProjectileSpeed, _stat.Penetration);
-        if (bulletLeft != null)
+        while (true)
         {
-            bulletLeft.transform.position = bulletLocationLeft.position;
-            bulletLeft.transform.rotation = bulletLocationLeft.rotation;
-            bulletLeft.gameObject.SetActive(true);
-        }
+            Bullet bulletLeft = baseStation.field.GetPooledBullet(_stat.Damage, _stat.ProjectileSpeed, _stat.Penetration);
+            if (bulletLeft != null)
+            {
+                bulletLeft.transform.position = bulletLocationLeft.position;
+                bulletLeft.transform.rotation = bulletLocationLeft.rotation;
+                bulletLeft.gameObject.SetActive(true);
+            }
 
-        Bullet bulletRight = baseStation.field.GetPooledBullet(_stat.Damage, _stat.ProjectileSpeed, _stat.Penetration);
-        if (bulletRight != null)
-        {
-            bulletRight.transform.position = bulletLocationRight.position;
-            bulletRight.transform.rotation = bulletLocationRight.rotation;
-            bulletRight.gameObject.SetActive(true);
+            Bullet bulletRight = baseStation.field.GetPooledBullet(_stat.Damage, _stat.ProjectileSpeed, _stat.Penetration);
+            if (bulletRight != null)
+            {
+                bulletRight.transform.position = bulletLocationRight.position;
+                bulletRight.transform.rotation = bulletLocationRight.rotation;
+                bulletRight.gameObject.SetActive(true);
+            }
+
+            yield return new WaitForSeconds(_stat.FireRate);
         }
+        
 
         //SOUND.Sfx(EUI_SFX.HIT_TEST_2);
     }

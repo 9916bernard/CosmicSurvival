@@ -50,6 +50,7 @@ public class UIBattleBase : UIBase
         //Time.timeScale = 3.0f;
 
         battleManager.BaseLevelUp();
+
         //OnBannerVisibilityChanged(false);
     }
 
@@ -64,7 +65,7 @@ public class UIBattleBase : UIBase
     {
         if (!battleManager.isTimeFast)
         {
-            Time.timeScale = 3.0f;
+            Time.timeScale = 5.0f;
             battleManager.isTimeFast = true;
         }
         else
@@ -80,7 +81,7 @@ public class UIBattleBase : UIBase
         RectTransform topPanelRect = top_panel.GetComponent<RectTransform>();
         if (isVisible)
         {
-            topPanelRect.anchoredPosition = new Vector2(topPanelRect.anchoredPosition.x, -180f);
+            topPanelRect.anchoredPosition = new Vector2(topPanelRect.anchoredPosition.x, -210f);
         }
         else
         {

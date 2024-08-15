@@ -22,6 +22,7 @@ public class Exp : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             battleManager.GainExperience(expValue);
+            RemoveFromQueue(battleManager._ExpSpawner.spawnedExps, this);
             _pool.Push(this);
         }
     }
@@ -37,4 +38,23 @@ public class Exp : MonoBehaviour
         _Exp.SetPool(Pool);
         return _Exp;
     }
+
+    public void RemoveFromQueue<T>(Queue<T> queue, T elementToRemove)
+    {
+        int initialCount = queue.Count;
+
+        for (int i = 0; i < initialCount; i++)
+        {
+            T currentElement = queue.Dequeue();
+
+            // Skip the element to remove
+            if (!EqualityComparer<T>.Default.Equals(currentElement, elementToRemove))
+            {
+                queue.Enqueue(currentElement);  // Add it back to the queue if it doesn't match
+            }
+        }
+    }
+
+
+
 }

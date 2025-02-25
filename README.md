@@ -1,6 +1,5 @@
-📌 Cosmic Survivor - Description
-
-🚀 Cosmic Survivor is a base-defense survival game inspired by the Vampire Survivors genre, featuring strategic base expansion, real-time combat, and upgrade mechanics. The game includes a variety of weapons, turrets, and enemies, with procedurally expanding maps and permanent progression elements.
+🚀 Cosmic Survivor 
+is a base-defense survival game inspired by the Vampire Survivors genre, featuring strategic base expansion, real-time combat, and upgrade mechanics. The game includes a variety of weapons, turrets, and enemies, with procedurally expanding maps and permanent progression elements.
 
 🔹 Key Features (Implemented)
 
